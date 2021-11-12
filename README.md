@@ -40,3 +40,29 @@ $ sudo firewall-cmd --reload
 $ sudo systemctl restart firewalld
 ```
 
+### logrotate 설정
+- LOG BASE : /home/yelloweb/logs/flask_sample_test
+
+```bash
+$ sudo vi /etc/logrotate.d/flask_sample_test
+```
+
+- 내용
+
+```bash
+/home/yelloweb/logs/flask_sample_test/*.log {
+    copytruncate
+    daily
+    rotate 15
+    maxage 7
+    missingok
+    notifempty
+    compress
+    dateext
+    dateformat -%Y%m%d_%s
+    postrotate
+        /bin/chown yelloweb:yello /home/yelloweb/logs/flask_sample_test/*.log*
+    endscript
+    su root yello
+}
+```

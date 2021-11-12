@@ -1,0 +1,23 @@
+{% extends "bootstrap/base.html" %}
+{% block metas %}
+  {{ super() }}
+  <meta http-equiv="Content-Security-Policy" content="script-src * data: https://cc-bi-kibana-1:5601 'unsafe-inline' 'unsafe-eval';">
+{% endblock %}
+{% block title %}User Retention{% endblock %}
+{% block styles %}
+  {{ super() }}
+  <!-- bootstrap datetimepicker -->
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css"/>
+{% endblock %}
+{% block content %}
+<div class="container" style="width: auto">
+  <!-- 제목 -->
+  <div class="row">
+    <div class="col-md-12">
+      <div class="page-header">
+        <h1>Hello World!!</h1>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
