@@ -28,14 +28,30 @@ class Sqlite3UserService:
         """
         self.db_logger = logging.getLogger('flask_sample_test.Sqlite3UserService')
         # Connection
-        self.db_conn = sql.connect('users.db')
+        self.db_conn = None
         # 테이블 확인 및 생성
+        self._get_db()
         if self._check_db() < 0:
             self._make_table()
+        self._close_db()
 
-    def __del__(self):
+    def _get_db(self):
+        """
+        Database Connection Open
+        :return:
+        """
+        if self.db_conn is None:
+            self.db_conn = sql.connect('users.db')
+            self.db_conn.row_factory = dict_factory
+
+    def _close_db(self):
+        """
+        Database Connection Close
+        :return:
+        """
         if self.db_conn:
             self.db_conn.close()
+            self.db_conn = None
 
     def _check_db(self):
         """
@@ -60,12 +76,11 @@ class Sqlite3UserService:
         :return:
         """
         try:
+            self._get_db()
             self.db_conn.execute('CREATE TABLE USERS (USER_ID TEXT, USER_PW TEXT, USER_NAME TEXT, RDATE TEXT, MDATE TEXT)')
             self.db_logger.info('Maked USERS Table')
         except Exception as e:
             err_log(self.db_logger, e, '_make_table')
-        finally:
-            self.db_conn.close()
 
 
 class Sqlite3BoardService:
@@ -79,14 +94,30 @@ class Sqlite3BoardService:
         """
         self.db_logger = logging.getLogger('flask_sample_test.Sqlite3BoardService')
         # Connection
-        self.db_conn = sql.connect('boards.db')
+        self.db_conn = None
         # 테이블 확인 및 생성
+        self._get_db()
         if self._check_db() < 0:
             self._make_table()
+        self._close_db()
 
-    def __del__(self):
+    def _get_db(self):
+        """
+        Database Connection Open
+        :return:
+        """
+        if self.db_conn is None:
+            self.db_conn = sql.connect('boards.db')
+            self.db_conn.row_factory = dict_factory
+
+    def _close_db(self):
+        """
+        Database Connection Close
+        :return:
+        """
         if self.db_conn:
             self.db_conn.close()
+            self.db_conn = None
 
     def _check_db(self):
         """
@@ -115,5 +146,3 @@ class Sqlite3BoardService:
             self.db_logger.info('Maked BOARDS Table')
         except Exception as e:
             err_log(self.db_logger, e, '_make_table')
-        finally:
-            self.db_conn.close()
