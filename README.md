@@ -12,7 +12,7 @@
 ### 개발서버 디렉토리 생성
 * sample-test env 사용
 ```bash
-$ mkdir /home/yelloweb/anaconda3/envs/sample-test/project/flask_sample_test
+$ mkdir ~/anaconda3/envs/sample-test/project/flask_sample_test
 ```
 
 ### PyCharm에서 생성한 디릭토리와 연동하여 Flask 프로젝트 생성
@@ -43,14 +43,14 @@ $ sudo systemctl restart firewalld
 ```
 
 ## logrotate 설정
-* LOG BASE : /home/yelloweb/logs/flask_sample_test
+* LOG BASE : ~/logs/flask_sample_test
 ```bash
 $ sudo vi /etc/logrotate.d/flask_sample_test
 ```
 
 * 내용
 ```bash
-/home/yelloweb/logs/flask_sample_test/*.log {
+{LOG BASE}/*.log {
     copytruncate
     daily
     rotate 15
@@ -61,9 +61,9 @@ $ sudo vi /etc/logrotate.d/flask_sample_test
     dateext
     dateformat -%Y%m%d_%s
     postrotate
-        /bin/chown yelloweb:yello /home/yelloweb/logs/flask_sample_test/*.log*
+        /bin/chown {USERID}:{USERGROUP} {LOG BASE}/*.log*
     endscript
-    su root yello
+    su root {USERGROUP}
 }
 ```
 
