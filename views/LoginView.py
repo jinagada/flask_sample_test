@@ -1,12 +1,12 @@
 import logging
-from datetime import datetime, timedelta
 
-from flask import Blueprint, request, session, render_template, current_app, redirect, url_for
+from flask import Blueprint, request, session, render_template, redirect, url_for
+
 from model.LoginModel import LoginModel
-
+from service.UsersService import UsersService
 
 login = Blueprint('login', __name__, url_prefix='/')
-vw_main_logger = logging.getLogger('flask_sample_test.login')
+vw_login_logger = logging.getLogger('flask_sample_test.login')
 
 
 @login.route('/loginForm')
@@ -29,7 +29,10 @@ def login_process():
         params = request.args
     else:
         params = request.form
-    session['USER_INFO'] = LoginModel(params.get('user_id', ''), params.get('user_pw', ''))
+    user_id = params.get('user_id', '')
+    user_pw = params.get('user_pw', '')
+    session['USER_INFO'] = LoginModel(user_id, user_pw)
+    UsersService().update_login_mdate(user_id, user_pw, user_id)
     return redirect(url_for('main.index'))
 
 

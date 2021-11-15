@@ -2,12 +2,12 @@ import logging
 import os
 from pathlib import Path
 
-from flask import Flask, current_app
+from flask import Flask
 from flask_bootstrap import Bootstrap
 
-from views.MainView import main
+from service.Sqlite3Serivce import Sqlite3UserService, Sqlite3BoardService
 from views.LoginView import login
-
+from views.MainView import main
 
 # logging 설정
 logger = logging.getLogger('flask_sample_test')
@@ -59,3 +59,6 @@ def init(env):
         logger.setLevel(logging.DEBUG)
     else:
         logger.setLevel(logging.INFO)
+    # Sqlite3 설정
+    Sqlite3UserService()
+    Sqlite3BoardService()
