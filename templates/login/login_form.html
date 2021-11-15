@@ -1,0 +1,69 @@
+{% extends "bootstrap/base.html" %}
+{% block metas %}
+  {{ super() }}
+  <meta http-equiv="Content-Security-Policy" content="script-src * data: https://cc-bi-kibana-1:5601 'unsafe-inline' 'unsafe-eval';">
+{% endblock %}
+{% block title %}Sample Login{% endblock %}
+{% block styles %}
+  {{ super() }}
+  <!-- bootstrap datetimepicker -->
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css"/>
+{% endblock %}
+{% block content %}
+<div class="container" style="width: auto">
+  <!-- 메뉴바 : START -->
+  {% include 'includes/_navbar.html' %}
+  <!-- 메뉴바 : END -->
+  <!-- 제목 : START -->
+  <div class="row">
+    <div class="col-md-12">
+      <div class="page-header">
+        <h1>로그인</h1>
+      </div>
+    </div>
+  </div>
+  <!-- 제목 : END -->
+  <!-- 로그인 Form : START -->
+  <form id="loginForm" name="loginForm" method="post" action="{{ url_for('login.login_process') }}">
+    <div class="row">
+      <div class="col-md-2">
+        <label for="user_id" class="form-label">아이디</label>
+        <input type="text" class="form-control" name="user_id" id="user_id">
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-2">
+        <label for="user_pw" class="form-label">비밀번호</label>
+        <input type="password" class="form-control" name="user_pw" id="user_pw">
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-1">
+        <button type="button" class="btn btn-primary" id="doLogin">로그인</button>
+      </div>
+    </div>
+  </form>
+  <!-- 로그인 Form : END -->
+</div>
+{% endblock %}
+<!-- javascript 영역 -->
+{% block scripts %}
+  {{ super() }}
+  <script type="text/javascript">
+      $(document).ready(function () {
+          $('#doLogin').click(function (e) {
+              if ($('#user_id').val() === '') {
+                  alert('아이디를 입력 해 주세요.');
+                  $('#user_id').focus();
+                  return;
+              }
+              if ($('#user_pw').val() === '') {
+                  alert('비밀번호를 입력 해 주세요.');
+                  $('#user_pw').focus();
+                  return;
+              }
+              $('#loginForm')[0].submit();
+          });
+      });
+  </script>
+{% endblock %}

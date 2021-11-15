@@ -5,6 +5,7 @@
 * Flask 2.0.1
 * Flask-Bootstrap 3.3.7.1
 * gunicorn 20.1.0
+* mysql-connector-python 8.0.22
 
 ## PyCharm 에서 Flask 프로젝트 생성
 ### 개발서버 디렉토리 생성
@@ -33,22 +34,20 @@ $ mkdir /home/yelloweb/anaconda3/envs/sample-test/project/flask_sample_test
  * Running on http://10.0.2.15:5000/ (Press CTRL+C to quit)
 ```
 
-### 개발모드에서 사용되는 5000 포트 개발서버 방화벽 설정
+## 개발모드에서 사용되는 5000 포트 개발서버 방화벽 설정
 ```bash
 $ sudo firewall-cmd --permanent --add-port=5000/tcp
 $ sudo firewall-cmd --reload
 $ sudo systemctl restart firewalld
 ```
 
-### logrotate 설정
-- LOG BASE : /home/yelloweb/logs/flask_sample_test
-
+## logrotate 설정
+* LOG BASE : /home/yelloweb/logs/flask_sample_test
 ```bash
 $ sudo vi /etc/logrotate.d/flask_sample_test
 ```
 
-- 내용
-
+* 내용
 ```bash
 /home/yelloweb/logs/flask_sample_test/*.log {
     copytruncate
@@ -65,4 +64,12 @@ $ sudo vi /etc/logrotate.d/flask_sample_test
     endscript
     su root yello
 }
+```
+
+## 추가 모듈 설치
+### MySQL Connector 설치
+* 필요한 경우 설치
+```bash
+# MySQL Client 설치
+$ sudo yum install mysql -y
 ```

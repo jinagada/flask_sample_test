@@ -5,7 +5,8 @@ from pathlib import Path
 from flask import Flask, current_app
 from flask_bootstrap import Bootstrap
 
-from views.SampleView import main
+from views.MainView import main
+from views.LoginView import login
 
 
 # logging 설정
@@ -13,8 +14,11 @@ logger = logging.getLogger('flask_sample_test')
 
 # Flask 설정
 app = Flask(__name__)
+# session 용 secret_key 설정
+app.secret_key = 'flask_sample_test_secret_key'
 # Blueprint 설정
 app.register_blueprint(main)
+app.register_blueprint(login)
 # Bootstrap 설정
 Bootstrap(app)
 # env 설정
