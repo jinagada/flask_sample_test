@@ -6,10 +6,10 @@
     <div class="collapse navbar-collapse">
       <ul class="nav navbar-nav">
         <li><a href="{{ url_for('main.index') }}">첫 화면</a></li>
-        {% if user_info == None %}
+        {% if 'USER_INFO' not in session %}
         <li><a href="{{ url_for('login.login_form') }}">로그인</a></li>
         {% else %}
-        <li><a href="{{ url_for('login.logout') }}">로그아웃</a></li>
+        <li><a href="{{ url_for('login.logout') }}">로그아웃[{{ session['USER_INFO'] }}]</a></li>
         {% endif %}
       </ul>
     </div>

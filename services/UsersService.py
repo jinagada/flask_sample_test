@@ -1,9 +1,7 @@
 import logging
-import sqlite3 as sql
 from datetime import datetime
 
-from service.LogService import err_log
-from service.Sqlite3Serivce import dict_factory
+from utils.LogUtil import err_log
 
 
 class UsersService:
@@ -11,30 +9,12 @@ class UsersService:
     Users 데이터 처리
     """
 
-    def __init__(self):
+    def __init__(self, db_conn):
         """
         Class 생성 및 변수선언
         """
         self.db_logger = logging.getLogger('flask_sample_test.UsersService')
-        self.db_conn = None
-
-    def _get_db(self):
-        """
-        Database Connection Open
-        :return:
-        """
-        if self.db_conn is None:
-            self.db_conn = sql.connect('users.db')
-            self.db_conn.row_factory = dict_factory
-
-    def _close_db(self):
-        """
-        Database Connection Close
-        :return:
-        """
-        if self.db_conn:
-            self.db_conn.close()
-            self.db_conn = None
+        self.db_conn = db_conn
 
     def get_user_by_id(self, user_id):
         """
@@ -43,7 +23,6 @@ class UsersService:
         :return:
         """
         try:
-            self._get_db()
             cur = self.db_conn.cursor()
             cur.execute('SELECT USER_ID, USER_PW, USER_NAME, RDATE, MDATE FROM USERS WHERE USER_ID = ?', (user_id,))
             user_info = cur.fetchone()
@@ -51,8 +30,6 @@ class UsersService:
         except Exception as e:
             err_log(self.db_logger, e, 'get_user_by_id')
             user_info = None
-        finally:
-            self._close_db()
         return user_info
 
     def insert_user(self, user_id, user_pw, user_name):
@@ -64,15 +41,12 @@ class UsersService:
         :return:
         """
         try:
-            self._get_db()
             now = datetime.now().strftime('%Y-%m-%dT%H:%M:%S%z')
             self.db_conn.execute('INSERT INTO USERS (USER_ID, USER_PW, USER_NAME, RDATE, MDATE) VALUES (?, ?, ?, ?, ?)',
                                  (user_id, user_pw, user_name, now, now))
             self.db_conn.commit()
         except Exception as e:
             err_log(self.db_logger, e, 'insert_user')
-        finally:
-            self._close_db()
 
     def update_mdate(self, user_id):
         """
@@ -80,14 +54,11 @@ class UsersService:
         :return:
         """
         try:
-            self._get_db()
             now = datetime.now().strftime('%Y-%m-%dT%H:%M:%S%z')
             self.db_conn.execute('UPDATE USERS SET MDATE = ? WHERE USER_ID = ?', (now, user_id))
             self.db_conn.commit()
         except Exception as e:
             err_log(self.db_logger, e, 'update_mdate')
-        finally:
-            self._close_db()
 
     def update_login_mdate(self, user_id, user_pw, user_name):
         """

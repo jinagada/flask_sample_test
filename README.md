@@ -5,6 +5,7 @@
 * Flask 2.0.1
 * Flask-Bootstrap 3.3.7.1
 * Jinja2 3.0.1
+* Werkzeug 2.0.1
 * gunicorn 20.1.0
 * mysql-connector-python 8.0.22
 
