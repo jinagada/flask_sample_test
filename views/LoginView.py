@@ -2,7 +2,6 @@ import logging
 
 from flask import Blueprint, request, session, g, render_template, redirect, url_for
 
-import MainController
 from models.LoginModel import LoginModel
 from services.UsersService import UsersService
 
@@ -19,10 +18,9 @@ def load_login_user_info():
     before_app_request : App 전체에서 동작
     :return:
     """
-    MainController.get_sqlite3_db()
     if 'USER_INFO' in session:
         if 'user_info' not in g:
-            user_info = UsersService(g.sqlite3).get_user_by_id(session['USER_INFO']['user_id'])
+            user_info = UsersService().get_user_by_id(session['USER_INFO']['user_id'])
             g.user_info = user_info
     else:
         g.user_info = None
@@ -53,7 +51,7 @@ def login_process():
     # Login session 처리
     session.permanent = True
     session['USER_INFO'] = LoginModel(user_id, user_pw)
-    UsersService(g.sqlite3).update_login_mdate(user_id, user_pw, user_id)
+    UsersService().update_login_mdate(user_id, user_pw, user_id)
     return redirect(url_for('main.index'))
 
 

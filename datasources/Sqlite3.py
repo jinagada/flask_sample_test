@@ -1,0 +1,117 @@
+import logging
+import sqlite3
+import traceback
+
+from utils.LogUtil import err_log
+
+
+def _dict_factory(cursor, row):
+    """
+    tuple -> dict
+    :param cursor:
+    :param row:
+    :return:
+    """
+    new_row = {}
+    for idx, col in enumerate(cursor.description):
+        new_row[col[0]] = row[idx]
+    return new_row
+
+
+class Sqlite3:
+    """
+    Sqlite3 연동 Class
+    """
+
+    def __init__(self):
+        """
+        Class 생성 및 변수선언
+        """
+        self.db_logger = logging.getLogger('flask_sample_test.Sqlite3')
+        self.db_conn = None
+
+    def __del__(self):
+        """
+        Class 삭제
+        """
+        self._close_conn()
+
+    def _get_conn(self):
+        """
+        Connection 연결
+        """
+        try:
+            if self.db_conn is None:
+                self.db_conn = sqlite3.connect('sample.db')
+                self.db_conn.row_factory = _dict_factory
+        except Exception as e:
+            err_log(self.db_logger, e, '_get_conn')
+            self.db_logger.error(traceback.format_exc())
+            self.db_conn = None
+
+    def _close_conn(self):
+        """
+        Connection 닫기
+        """
+        try:
+            if self.db_conn is not None:
+                self.db_conn.close()
+                self.db_conn = None
+        except Exception as e:
+            err_log(self.db_logger, e, '_close_conn')
+            self.db_logger.error(traceback.format_exc())
+            self.db_conn = None
+
+    def execute(self, query, params=None, is_one=False):
+        """
+        SELECT 실행 및 결과반환
+        :param query:
+        :param params:
+        :param is_one:
+        :return:
+        """
+        try:
+            self._get_conn()
+            cur = self.db_conn.cursor()
+            if params:
+                cur.execute(query, params)
+            else:
+                cur.execute(query)
+            if is_one:
+                result = cur.fetchone()
+            else:
+                result = cur.fetchall()
+            cur.close()
+        except Exception as e:
+            err_log(self.db_logger, e, 'execute')
+            self.db_logger.error(traceback.format_exc())
+            result = None
+        finally:
+            self._close_conn()
+        return result
+
+    def cmd(self, query, params=None, is_id=False):
+        """
+        INSERT, UPDATE, DELETE, CREATE 실행 및 결과반환
+        :param query:
+        :param params:
+        :param is_id:
+        :return:
+        """
+        try:
+            self._get_conn()
+            if params:
+                cursor = self.db_conn.execute(query, params)
+            else:
+                cursor = self.db_conn.execute(query)
+            self.db_conn.commit()
+            if is_id:
+                result = cursor.lastrowid
+            else:
+                result = cursor.rowcount
+        except Exception as e:
+            err_log(self.db_logger, e, '_make_table_users')
+            self.db_logger.error(traceback.format_exc())
+        finally:
+            self._close_conn()
+        return result

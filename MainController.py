@@ -1,14 +1,12 @@
 import logging
 import os
-import sqlite3
 from datetime import timedelta
 from pathlib import Path
 
-from flask import Flask, g
+from flask import Flask
 from flask_bootstrap import Bootstrap
 
 from services.Sqlite3Serivce import Sqlite3Service
-from utils.LogUtil import err_log
 from views.LoginView import login
 from views.MainView import main
 
@@ -35,39 +33,6 @@ Bootstrap(app)
 env_val = None
 
 
-def get_sqlite3_db():
-    """
-    Sqlite3 Connection 설정
-    :return:
-    """
-    try:
-        result = getattr(g, 'sqlite3', None)
-        if result is None:
-            db_conn = sqlite3.connect('sample.db')
-            db_conn.row_factory = dict_factory
-            g.sqlite3 = db_conn
-            result = db_conn
-    except Exception as e:
-        db_conn = sqlite3.connect('sample.db')
-        db_conn.row_factory = dict_factory
-        result = db_conn
-        err_log(logger, e, 'get_sqlite3_db')
-    return result
-
-
-def dict_factory(cursor, row):
-    """
-    tuple -> dict
-    :param cursor:
-    :param row:
-    :return:
-    """
-    new_row = {}
-    for idx, col in enumerate(cursor.description):
-        new_row[col[0]] = row[idx]
-    return new_row
-
-
 @app.before_request
 def init_global():
     """
@@ -76,17 +41,6 @@ def init_global():
     before_app_request 는 Blueprint 에만 존재함
     """
     pass
-
-
-@app.teardown_appcontext
-def close_connection(exception):
-    """
-    Sqlite3 Connection Close 설정
-    :param exception:
-    :return:
-    """
-    if 'sqlite3' in g and g.sqlite3 is not None:
-        g.sqlite3.close()
 
 
 def init(env):
@@ -116,4 +70,4 @@ def init(env):
     else:
         logger.setLevel(logging.INFO)
     # Sqlite3 초기 테이블 설정
-    Sqlite3Service(get_sqlite3_db())
+    Sqlite3Service()

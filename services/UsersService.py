@@ -1,6 +1,8 @@
 import logging
+import traceback
 from datetime import datetime
 
+from datasources.Sqlite3 import Sqlite3
 from utils.LogUtil import err_log
 
 
@@ -9,12 +11,11 @@ class UsersService:
     Users 데이터 처리
     """
 
-    def __init__(self, db_conn):
+    def __init__(self):
         """
         Class 생성 및 변수선언
         """
         self.db_logger = logging.getLogger('flask_sample_test.UsersService')
-        self.db_conn = db_conn
 
     def get_user_by_id(self, user_id):
         """
@@ -23,12 +24,10 @@ class UsersService:
         :return:
         """
         try:
-            cur = self.db_conn.cursor()
-            cur.execute('SELECT USER_ID, USER_PW, USER_NAME, RDATE, MDATE FROM USERS WHERE USER_ID = ?', (user_id,))
-            user_info = cur.fetchone()
-            cur.close()
+            user_info = Sqlite3().execute('SELECT USER_ID, USER_PW, USER_NAME, RDATE, MDATE FROM USERS WHERE USER_ID = ?', (user_id,), True)
         except Exception as e:
             err_log(self.db_logger, e, 'get_user_by_id')
+            self.db_logger.error(traceback.format_exc())
             user_info = None
         return user_info
 
@@ -42,11 +41,11 @@ class UsersService:
         """
         try:
             now = datetime.now().strftime('%Y-%m-%dT%H:%M:%S%z')
-            self.db_conn.execute('INSERT INTO USERS (USER_ID, USER_PW, USER_NAME, RDATE, MDATE) VALUES (?, ?, ?, ?, ?)',
-                                 (user_id, user_pw, user_name, now, now))
-            self.db_conn.commit()
+            Sqlite3().cmd('INSERT INTO USERS (USER_ID, USER_PW, USER_NAME, RDATE, MDATE) VALUES (?, ?, ?, ?, ?)',
+                          (user_id, user_pw, user_name, now, now))
         except Exception as e:
             err_log(self.db_logger, e, 'insert_user')
+            self.db_logger.error(traceback.format_exc())
 
     def update_mdate(self, user_id):
         """
@@ -55,10 +54,10 @@ class UsersService:
         """
         try:
             now = datetime.now().strftime('%Y-%m-%dT%H:%M:%S%z')
-            self.db_conn.execute('UPDATE USERS SET MDATE = ? WHERE USER_ID = ?', (now, user_id))
-            self.db_conn.commit()
+            Sqlite3().cmd('UPDATE USERS SET MDATE = ? WHERE USER_ID = ?', (now, user_id))
         except Exception as e:
             err_log(self.db_logger, e, 'update_mdate')
+            self.db_logger.error(traceback.format_exc())
 
     def update_login_mdate(self, user_id, user_pw, user_name):
         """
