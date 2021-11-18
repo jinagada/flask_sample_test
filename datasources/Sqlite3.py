@@ -90,12 +90,12 @@ class Sqlite3:
             self._close_conn()
         return result
 
-    def cmd(self, query, params=None, is_id=False):
+    def cmd(self, query, params=None, is_lastrowid=False):
         """
         INSERT, UPDATE, DELETE, CREATE 실행 및 결과반환
         :param query:
         :param params:
-        :param is_id:
+        :param is_lastrowid:
         :return:
         """
         try:
@@ -105,13 +105,14 @@ class Sqlite3:
             else:
                 cursor = self.db_conn.execute(query)
             self.db_conn.commit()
-            if is_id:
+            if is_lastrowid:
                 result = cursor.lastrowid
             else:
                 result = cursor.rowcount
         except Exception as e:
             err_log(self.db_logger, e, '_make_table_users')
             self.db_logger.error(traceback.format_exc())
+            result = None
         finally:
             self._close_conn()
         return result
