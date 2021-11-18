@@ -1,0 +1,31 @@
+{% extends "bootstrap/base.html" %}
+{% block title %}Sample Test{% endblock %}
+{% block styles %}
+  {{ super() }}
+  <!-- bootstrap datetimepicker -->
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css"/>
+{% endblock %}
+{% block content %}
+  <div class="container" style="width: auto">
+    <!-- 메뉴바 : START -->
+    {% include 'includes/_navbar.html' %}
+    <!-- 메뉴바 : END -->
+    <!-- 제목 : START -->
+    <div class="row">
+      <div class="col-md-12">
+        <div class="page-header">
+          <h1>500</h1>
+        </div>
+      </div>
+    </div>
+    <!-- 제목 : END -->
+    <!-- 오류 내용 : START -->
+    <div class="row">
+      <div class="col-md-12">
+        {{ error_msg }}
+        <pre>{{ error_msg.args }}</pre>
+      </div>
+    </div>
+    <!-- 오류 내용 : END -->
+  </div>
+{% endblock %}

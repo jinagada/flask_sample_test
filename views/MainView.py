@@ -3,7 +3,7 @@ import logging
 from flask import Blueprint, g, render_template
 
 main = Blueprint('main', __name__, url_prefix='/')
-vw_main_logger = logging.getLogger('flask_sample_test.main')
+vw_main_logger = logging.getLogger('flask_sample_test.views.MainView')
 
 
 @main.route('/')

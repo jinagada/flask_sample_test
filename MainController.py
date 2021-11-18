@@ -3,12 +3,13 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
-from flask import Flask
+from flask import Flask, render_template
 from flask_bootstrap import Bootstrap
 
 from services.Sqlite3Serivce import Sqlite3Service
 from views.LoginView import login
 from views.MainView import main
+from views.MemberView import user
 
 # logging 설정
 logger = logging.getLogger('flask_sample_test')
@@ -23,10 +24,11 @@ key = secrets.token_hex(16)
 print(key)
 """
 app.secret_key = 'cf7f5046e2f3b85087a1d388fb8bec62'
-app.permanent_session_lifetime = timedelta(minutes=1)
+app.permanent_session_lifetime = timedelta(minutes=5)
 # Blueprint 설정
 app.register_blueprint(main)
 app.register_blueprint(login)
+app.register_blueprint(user)
 # Bootstrap 설정
 Bootstrap(app)
 # env 설정
@@ -41,6 +43,28 @@ def init_global():
     before_app_request 는 Blueprint 에만 존재함
     """
     pass
+
+
+@app.errorhandler(404)
+def page_not_found(error):
+    """
+    404 Error 화면
+    주요 Error 화면 처리는 Blueprint 에서 처리가 안되는 듯 보임
+    :param error:
+    :return:
+    """
+    return render_template('error/404.html'), 404
+
+
+@app.errorhandler(500)
+def page_not_found(error):
+    """
+    500 Error 화면
+    주요 Error 화면 처리는 Blueprint 에서 처리가 안되는 듯 보임
+    :param error:
+    :return:
+    """
+    return render_template('error/500.html', error_msg=error.original_exception), 500
 
 
 def init(env):

@@ -1,0 +1,36 @@
+<!-- 사용자 등록 팝업 : START -->
+<div class="modal fade" id="saveUserModal" tabindex="-1" role="dialog" aria-labelledby="saveUserModalLabel">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">사용자 등록/수정</h4>
+      </div>
+      <div class="modal-body">
+        <form id="saveUserForm" name="saveUserForm" method="post" action="{{ url_for('user.save_user') }}">
+        <div class="row">
+          <div class="col-md-4">
+            <label for="user_id" class="form-label">아이디</label>
+            <input type="text" class="form-control" name="user_id" id="user_id">
+          </div>
+          <div class="col-md-4">
+            <label for="user_pw" class="form-label">비밀번호</label>
+            <input type="text" class="form-control" name="user_pw" id="user_pw">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-4">
+            <label for="user_name" class="form-label">이름</label>
+            <input type="text" class="form-control" name="user_name" id="user_name">
+          </div>
+        </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">닫기</button>
+        <button type="button" class="btn btn-primary" id="goSaveUser">저장</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 사용자 등록 팝업 : END -->

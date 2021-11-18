@@ -1,8 +1,4 @@
 {% extends "bootstrap/base.html" %}
-{% block metas %}
-  {{ super() }}
-  <meta http-equiv="Content-Security-Policy" content="script-src * data: https://cc-bi-kibana-1:5601 'unsafe-inline' 'unsafe-eval';">
-{% endblock %}
 {% block title %}Sample Login{% endblock %}
 {% block styles %}
   {{ super() }}
@@ -37,13 +33,22 @@
         <input type="password" class="form-control" name="user_pw" id="user_pw">
       </div>
     </div>
-    <div class="row">
-      <div class="col-md-1">
+    <div class="row" style="margin-top:10px;">
+      <div class="col-md-2 text-right">
         <button type="button" class="btn btn-primary" id="doLogin">로그인</button>
       </div>
     </div>
   </form>
   <!-- 로그인 Form : END -->
+  {% if login_error %}
+  <!-- 오류 메시지 : START -->
+  <div class="row">
+    <div class="col-md-2">
+      <p class="text-danger">아이디 혹은 비밀번호 정보가 다릅니다. 다시 입력 해 주세요.</p>
+    </div>
+  </div>
+  {% endif %}
+  <!-- 오류 메시지 : END -->
 </div>
 {% endblock %}
 <!-- javascript 영역 -->
