@@ -9,7 +9,7 @@ from flask_bootstrap import Bootstrap
 from services.Sqlite3Serivce import Sqlite3Service
 from views.LoginView import login
 from views.MainView import main
-from views.MemberView import user
+from views.UserView import user
 
 # logging 설정
 logger = logging.getLogger('flask_sample_test')
