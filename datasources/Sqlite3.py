@@ -27,7 +27,7 @@ class Sqlite3:
         """
         Class 생성 및 변수선언
         """
-        self.db_logger = logging.getLogger('flask_sample_test.Sqlite3')
+        self.logger = logging.getLogger('flask_sample_test.Sqlite3')
         self.db_conn = None
 
     def __del__(self):
@@ -45,8 +45,7 @@ class Sqlite3:
                 self.db_conn = sqlite3.connect('sample.db')
                 self.db_conn.row_factory = _dict_factory
         except Exception as e:
-            err_log(self.db_logger, e, '_get_conn')
-            self.db_logger.error(traceback.format_exc())
+            err_log(self.logger, e, '_get_conn', traceback.format_exc())
             self.db_conn = None
 
     def _close_conn(self):
@@ -58,8 +57,7 @@ class Sqlite3:
                 self.db_conn.close()
                 self.db_conn = None
         except Exception as e:
-            err_log(self.db_logger, e, '_close_conn')
-            self.db_logger.error(traceback.format_exc())
+            err_log(self.logger, e, '_close_conn', traceback.format_exc())
             self.db_conn = None
 
     def execute(self, query, params=None, is_one=False):
@@ -83,8 +81,7 @@ class Sqlite3:
                 result = cur.fetchall()
             cur.close()
         except Exception as e:
-            err_log(self.db_logger, e, 'execute')
-            self.db_logger.error(traceback.format_exc())
+            err_log(self.logger, e, 'execute', traceback.format_exc())
             result = None
         finally:
             self._close_conn()
@@ -110,8 +107,7 @@ class Sqlite3:
             else:
                 result = cursor.rowcount
         except Exception as e:
-            err_log(self.db_logger, e, '_make_table_users')
-            self.db_logger.error(traceback.format_exc())
+            err_log(self.logger, e, '_make_table_users', traceback.format_exc())
             result = None
         finally:
             self._close_conn()

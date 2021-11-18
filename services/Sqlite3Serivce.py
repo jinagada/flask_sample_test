@@ -14,7 +14,7 @@ class Sqlite3Service:
         """
         Class 생성
         """
-        self.db_logger = logging.getLogger('flask_sample_test.Sqlite3Service')
+        self.logger = logging.getLogger('flask_sample_test.Sqlite3Service')
         # 테이블 확인 및 생성
         if self._check_table_users() < 0:
             self._make_table_users()
@@ -29,10 +29,9 @@ class Sqlite3Service:
         try:
             tmp = Sqlite3().execute(query='SELECT COUNT(*) AS CNT FROM USERS')
             result = tmp[0]['CNT']
-            self.db_logger.info(f'Check USERS Table : {result}')
+            self.logger.info(f'Check USERS Table : {result}')
         except Exception as e:
-            err_log(self.db_logger, e, '_check_table_users')
-            self.db_logger.error(traceback.format_exc())
+            err_log(self.logger, e, '_check_table_users', traceback.format_exc())
             result = -1
         return result
 
@@ -43,10 +42,9 @@ class Sqlite3Service:
         """
         try:
             Sqlite3().cmd(query='CREATE TABLE USERS (USER_ID TEXT, USER_PW TEXT, USER_NAME TEXT, RDATE TEXT, MDATE TEXT)')
-            self.db_logger.info('Maked USERS Table')
+            self.logger.info('Maked USERS Table')
         except Exception as e:
-            err_log(self.db_logger, e, '_make_table_users')
-            self.db_logger.error(traceback.format_exc())
+            err_log(self.logger, e, '_make_table_users', traceback.format_exc())
 
     def _check_table_boards(self):
         """
@@ -56,10 +54,9 @@ class Sqlite3Service:
         try:
             tmp = Sqlite3().execute(query='SELECT COUNT(*) AS CNT FROM BOARDS')
             result = tmp[0]['CNT']
-            self.db_logger.info(f'Check BOARDS Table : {result}')
+            self.logger.info(f'Check BOARDS Table : {result}')
         except Exception as e:
-            err_log(self.db_logger, e, '_check_db_boards')
-            self.db_logger.error(traceback.format_exc())
+            err_log(self.logger, e, '_check_db_boards', traceback.format_exc())
             result = -1
         return result
 
@@ -70,7 +67,6 @@ class Sqlite3Service:
         """
         try:
             Sqlite3().cmd(query='CREATE TABLE BOARDS (IDX INTEGER, TITLE TEXT, CONTENTS TEXT, RDATE TEXT, RUSER TEXT, MDATE TEXT, MUSER TEXT)')
-            self.db_logger.info('Maked BOARDS Table')
+            self.logger.info('Maked BOARDS Table')
         except Exception as e:
-            err_log(self.db_logger, e, '_make_table_boards')
-            self.db_logger.error(traceback.format_exc())
+            err_log(self.logger, e, '_make_table_boards', traceback.format_exc())

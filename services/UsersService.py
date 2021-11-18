@@ -15,7 +15,7 @@ class UsersService:
         """
         Class 생성 및 변수선언
         """
-        self.db_logger = logging.getLogger('flask_sample_test.UsersService')
+        self.logger = logging.getLogger('flask_sample_test.UsersService')
 
     def get_user_by_id(self, user_id):
         """
@@ -26,8 +26,7 @@ class UsersService:
         try:
             user_info = Sqlite3().execute('SELECT USER_ID, USER_PW, USER_NAME, RDATE, MDATE FROM USERS WHERE USER_ID = ?', (user_id,), True)
         except Exception as e:
-            err_log(self.db_logger, e, 'get_user_by_id')
-            self.db_logger.error(traceback.format_exc())
+            err_log(self.logger, e, 'get_user_by_id', traceback.format_exc())
             user_info = None
         return user_info
 
@@ -44,8 +43,7 @@ class UsersService:
             Sqlite3().cmd('INSERT INTO USERS (USER_ID, USER_PW, USER_NAME, RDATE, MDATE) VALUES (?, ?, ?, ?, ?)',
                           (user_id, user_pw, user_name, now, now))
         except Exception as e:
-            err_log(self.db_logger, e, 'insert_user')
-            self.db_logger.error(traceback.format_exc())
+            err_log(self.logger, e, 'insert_user', traceback.format_exc())
 
     def update_mdate(self, user_id):
         """
@@ -56,8 +54,7 @@ class UsersService:
             now = datetime.now().strftime('%Y-%m-%dT%H:%M:%S%z')
             Sqlite3().cmd('UPDATE USERS SET MDATE = ? WHERE USER_ID = ?', (now, user_id))
         except Exception as e:
-            err_log(self.db_logger, e, 'update_mdate')
-            self.db_logger.error(traceback.format_exc())
+            err_log(self.logger, e, 'update_mdate', traceback.format_exc())
 
     def update_login_mdate(self, user_id, user_pw, user_name):
         """
