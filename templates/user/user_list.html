@@ -22,11 +22,13 @@
   <!-- 사용자 목록 : START -->
   <div class="row">
     <div class="col-md-12">
-      <form id="userListForm" name="userListForm">
+      <form id="userListForm" name="userListForm" method="post">
+        <input type="hidden" name="page_num" id="page_num" value="1">
+        <input type="hidden" name="row_per_page" id="row_per_page" value="10">
       <table class="table" id="userListTable">
         <thead>
         <tr>
-          <th scope="col"></th>
+          <th scope="col"><input type="checkbox" id="checkedAll"></th>
           <th scope="col">#</th>
           <th scope="col">아이디</th>
           <th scope="col">비밀번호</th>
@@ -40,7 +42,7 @@
         {% for user in user_list %}
           <tr>
             <td><input type="checkbox" name="user_seqs" value="{{ user['SEQ'] }}"></td>
-            <td>{{ loop.index + (page_num - 1) * row_per_page }}</td>
+            <td>{{ totalcount - ((page_num - 1) * row_per_page) - loop.index0 }}</td>
             <td>{{ user['USER_ID'] }}</td>
             <td>{{ user['USER_PW'] }}</td>
             <td>{{ user['USER_NAME'] }}</td>
@@ -80,19 +82,39 @@
   {{ super() }}
   <script type="text/javascript">
       $(document).ready(function () {
+          // checkbox 전체 checked/unckecked 처리
+          $('#checkedAll').click(function (e) {
+              fn_checkedAll_toggle();
+          });
+          // 사용자 등록 팝업
           $('#goInsertUserPopup').click(function (e) {
               fn_goInsertUserPopup();
           });
+          // 사용자 등록/수정 처리
           $('#goSaveUser').click(function (e) {
               fn_goSaveUser();
           });
+          // 사용자 수정 팝업
           $('.goUpdateUserPopup').click(function (e) {
               fn_goUpdateUserPopup($(this).parents('tr').find('input[name="user_seqs"]').val())
           });
+          // 사용자 삭제 처리
           $('#goDeleteUser').click(function (e) {
               fn_goDeleteUser();
           });
       });
+      // checkbox 전체 checked/unckecked 처리
+      function fn_checkedAll_toggle() {
+          if ($('#checkedAll')[0].checked) {
+              $('#userListTable').find('input[name="user_seqs"]').each(function () {
+                  this.checked = true;
+              });
+          } else {
+              $('#userListTable').find('input[name="user_seqs"]').each(function () {
+                  this.checked = null;
+              });
+          }
+      }
       // 사용자 등록 팝업
       function fn_goInsertUserPopup() {
           $('#user_seq').val('');
@@ -101,7 +123,7 @@
           $('#user_name').val('');
           $('#saveUserModal').modal('show');
       }
-      // 사용자 등록
+      // 사용자 등록/수정 처리
       function fn_goSaveUser() {
           if ($('#user_id').val() === '') {
               alert('아이디를 입력 해 주세요.');
@@ -139,7 +161,7 @@
               });
           });
       }
-      // 사용자 삭제
+      // 사용자 삭제 처리
       function fn_goDeleteUser() {
           let delUserCount = 0;
           $('#userListTable').find('input[name="user_seqs"]:checked').each(function () {
@@ -159,6 +181,12 @@
           }).done(function() {
               location.reload();
           });
+      }
+      // 페이지 이동
+      function fn_goLink(page_num) {
+          $('#page_num').val(page_num);
+          $('#userListForm')[0].action = '{{ url_for('user.user_list') }}';
+          $('#userListForm')[0].submit();
       }
   </script>
 {% endblock %}

@@ -138,8 +138,8 @@ class UsersService:
         :return:
         """
         try:
-            query_str = ','.join(map(str, user_seq_list))
-            result = Sqlite3().cmd(query=f'DELETE FROM USERS WHERE SEQ IN ({query_str})')
+            in_query_str = ','.join(list(''.rjust(len(user_seq_list), '?')))
+            result = Sqlite3().cmd(f'DELETE FROM USERS WHERE SEQ IN ({in_query_str})', tuple(user_seq_list))
         except Exception as e:
             err_log(self.logger, e, 'UsersService.delete_users', traceback.format_exc())
             result = -1
@@ -153,7 +153,7 @@ class UsersService:
         """
         user_list, totalcount = self.get_user_list(0, 10)
         if totalcount < 2 or totalcount == len(user_seq_list):
-            raise Exception('마지막 사용자는 삭제 할 수 없습니다.')
+            raise Exception('사용자를 전부 삭제 할 수 없습니다.')
         else:
             result = self.delete_users(user_seq_list)
         return result

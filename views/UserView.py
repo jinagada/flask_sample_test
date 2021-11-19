@@ -48,13 +48,14 @@ def user_list():
     else:
         params = request.form
     # page 파라메터
-    page_num = params.get('page_num', 1)
-    row_per_page = params.get('row_per_page', 20)
+    page_num = int(params.get('page_num', 1))
+    row_per_page = int(params.get('row_per_page', 10))
     # 목록 조회
     user_data_list, totalcount = UsersService().get_user_list((page_num - 1) * row_per_page, row_per_page)
     # 페이징 처리
     block_start, block_end, last_page_num = calculate_page(page_num, row_per_page, totalcount, 5)
-    return render_template('user/user_list.html', user_list=user_data_list, page_num=page_num, row_per_page=row_per_page, block_start=block_start, block_end=block_end, last_page_num=last_page_num)
+    return render_template('user/user_list.html', user_list=user_data_list, page_num=page_num, row_per_page=row_per_page,
+                           block_start=block_start, block_end=block_end, last_page_num=last_page_num, totalcount=totalcount)
 
 
 @user.route('/saveUser', methods=['POST'])
