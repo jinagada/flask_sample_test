@@ -29,6 +29,19 @@ class UsersService:
             user_info = None
         return user_info
 
+    def get_user_by_seq(self, user_seq):
+        """
+        User 정보 조회
+        :param user_seq:
+        :return:
+        """
+        try:
+            user_info = Sqlite3().execute('SELECT SEQ, USER_ID, USER_PW, USER_NAME, RDATE, MDATE FROM USERS WHERE SEQ = ?', (user_seq,), True)
+        except Exception as e:
+            err_log(self.logger, e, 'UsersService.get_user_by_seq', traceback.format_exc())
+            user_info = None
+        return user_info
+
     def get_user_list(self, start_row, row_per_page):
         """
         User 목록 조회
@@ -107,7 +120,10 @@ class UsersService:
         :param user_seq:
         :return:
         """
-        user_info = self.get_user_by_id(user_id)
+        if user_seq:
+            user_info = self.get_user_by_seq(user_seq)
+        else:
+            user_info = None
         if user_info:
             result = self.update_user(user_seq, user_id, user_pw, user_name)
         else:

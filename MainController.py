@@ -3,7 +3,7 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
-from flask import Flask, render_template
+from flask import Flask, request, render_template, url_for, jsonify
 from flask_bootstrap import Bootstrap
 
 from services.Sqlite3Serivce import Sqlite3Service
@@ -57,14 +57,17 @@ def page_not_found(error):
 
 
 @app.errorhandler(500)
-def page_not_found(error):
+def internal_server_error(error):
     """
     500 Error 화면
     주요 Error 화면 처리는 Blueprint 에서 처리가 안되는 듯 보임
     :param error:
     :return:
     """
-    return render_template('error/500.html', error_msg=error.original_exception), 500
+    if request.path == url_for('user.get_user'):
+        return jsonify({'error': 500, 'error_msg': str(error.original_exception)}), 500
+    else:
+        return render_template('error/500.html', error_msg=error.original_exception), 500
 
 
 def init(env):

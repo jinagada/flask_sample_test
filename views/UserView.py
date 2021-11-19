@@ -77,3 +77,23 @@ def save_user():
         err_log(vw_member_logger, e, 'MemverView.save_user', traceback.format_exc())
         result = {'is_success': False}
     return jsonify(result)
+
+
+@user.route('/getUser', methods=['POST'])
+@login_required
+def get_user():
+    """
+    사용자정보 조회
+    :return:
+    """
+    try:
+        # 파라메터 처리
+        params = request.form
+        user_seq = params.get('user_seq')
+        user_info = UsersService().get_user_by_seq(user_seq)
+        if user_info is None:
+            raise Exception('User Not Found.')
+    except Exception as e:
+        err_log(vw_member_logger, e, 'MemverView.get_user', traceback.format_exc())
+        raise e
+    return render_template('user/_save_user_modal.html', user_info=user_info)

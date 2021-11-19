@@ -25,23 +25,27 @@
       <table class="table">
         <thead>
         <tr>
+          <th scope="col"></th>
           <th scope="col">#</th>
           <th scope="col">아이디</th>
           <th scope="col">비밀번호</th>
           <th scope="col">이름</th>
           <th scope="col">등록일</th>
           <th scope="col">수정일시</th>
+          <th scope="col"></th>
         </tr>
         </thead>
         <tbody>
         {% for user in user_list %}
           <tr>
+            <td><input type="checkbox" value="{{ user['SEQ'] }}" class="userSeq"></td>
             <td>{{ loop.index + (page_num - 1) * row_per_page }}</td>
             <td>{{ user['USER_ID'] }}</td>
             <td>{{ user['USER_PW'] }}</td>
             <td>{{ user['USER_NAME'] }}</td>
             <td>{{ user['RDATE']|formatdtuser('%Y.%m.%d') }}</td>
             <td>{{ user['MDATE']|formatdtuser('%Y.%m.%d %H:%M:%S') }}</td>
+            <td><button class="btn btn-primary goUpdateUserPopup" type="button">수정</button></td>
           </tr>
         {% endfor %}
         </tbody>
@@ -59,11 +63,13 @@
   <!-- Button : START -->
   <div class="row">
     <div class="col-md-12 text-right">
-      <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#saveUserModal">사용자 등록</button>
+      <button class="btn btn-primary" type="button" id="goInsertUserPopup">사용자 등록</button>
     </div>
   </div>
   <!-- Button : END -->
+  <div id="saveUserModalArea">
   {% include 'user/_save_user_modal.html' %}
+  </div>
 </div>
 {% endblock %}
 <!-- javascript 영역 -->
@@ -71,30 +77,61 @@
   {{ super() }}
   <script type="text/javascript">
       $(document).ready(function () {
+          $('#goInsertUserPopup').click(function (e) {
+              fn_goInsertUserPopup();
+          });
           $('#goSaveUser').click(function (e) {
-              if ($('#user_id').val() === '') {
-                  alert('아이디를 입력 해 주세요.');
-                  $('#user_id').focus();
-                  return;
+              fn_goSaveUser();
+          });
+          $('.goUpdateUserPopup').click(function (e) {
+              fn_goUpdateUserPopup($(this).parents('tr').find('.userSeq').val())
+          })
+      });
+      // 사용자 등록 팝업
+      function fn_goInsertUserPopup() {
+          $('#user_seq').val('');
+          $('#user_id').val('');
+          $('#user_pw').val('');
+          $('#user_name').val('');
+          $('#saveUserModal').modal('show');
+      }
+      // 사용자 등록
+      function fn_goSaveUser() {
+          if ($('#user_id').val() === '') {
+              alert('아이디를 입력 해 주세요.');
+              $('#user_id').focus();
+              return;
+          }
+          if ($('#user_pw').val() === '') {
+              alert('비밀번호를 입력 해 주세요.');
+              $('#user_pw').focus();
+              return;
+          }
+          if ($('#user_name').val() === '') {
+              alert('이름을 입력 해 주세요.');
+              $('#user_name').focus();
+              return;
+          }
+          $.post($('#saveUserForm')[0].action, $('#saveUserForm').serialize(), function(data) {
+              if (!data.is_success) {
+                  alert('사용자 등록 시 오류가 발생 했습니다.');
               }
-              if ($('#user_pw').val() === '') {
-                  alert('비밀번호를 입력 해 주세요.');
-                  $('#user_pw').focus();
-                  return;
-              }
-              if ($('#user_name').val() === '') {
-                  alert('이름을 입력 해 주세요.');
-                  $('#user_name').focus();
-                  return;
-              }
-              $.post($('#saveUserForm')[0].action, $('#saveUserForm').serialize(), function(data) {
-                  if (!data.is_success) {
-                      alert('사용자 등록 시 오류가 발생 했습니다.');
-                  }
-              }).done(function() {
-                  location.reload();
+          }).done(function() {
+              location.reload();
+          });
+      }
+      // 사용자 수정 팝업
+      function fn_goUpdateUserPopup(user_seq) {
+          $.post('{{ url_for('user.get_user') }}', {'user_seq': user_seq}, function (data) {
+              $('#saveUserModalArea').html(data);
+              $('#saveUserModal').modal('show');
+          }).fail(function (e) {
+              alert(e.responseJSON.error_msg);
+          }).done(function (e) {
+              $('#goSaveUser').click(function (e) {
+                  fn_goSaveUser();
               });
           });
-      });
+      }
   </script>
 {% endblock %}
