@@ -18,6 +18,8 @@ class Sqlite3Service:
         # 테이블 확인 및 생성
         if self._check_table_users() < 0:
             self._make_table_users()
+            # 최초 사용자 등록
+            self._insert_first_user()
         if self._check_table_boards() < 0:
             self._make_table_boards()
 
@@ -32,6 +34,19 @@ class Sqlite3Service:
             self.logger.info(f'Check USERS Table : {result}')
         except Exception as e:
             err_log(self.logger, e, 'Sqlite3Service._check_table_users', traceback.format_exc())
+            result = -1
+        return result
+
+    def _insert_first_user(self):
+        """
+        최초 사용자 등록
+        :return:
+        """
+        try:
+            result = Sqlite3().cmd(query='INSERT INTO USERS (USER_ID, USER_PW, USER_NAME, RDATE, MDATE) VALUES (\'admin\', \'1234!\', \'Admin User\', DATETIME(\'now\', \'localtime\'), DATETIME(\'now\', \'localtime\'))')
+            self.logger.info(f'Insert USER : {result}')
+        except Exception as e:
+            err_log(self.logger, e, 'Sqlite3Service._insert_first_user', traceback.format_exc())
             result = -1
         return result
 

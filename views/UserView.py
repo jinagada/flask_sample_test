@@ -10,7 +10,7 @@ from utils.PageUtil import calculate_page
 from views.LoginView import login_required
 
 user = Blueprint('user', __name__, url_prefix='/user')
-vw_member_logger = logging.getLogger('flask_sample_test.views.MemberView')
+vw_member_logger = logging.getLogger('flask_sample_test.views.UserView')
 
 
 @user.app_template_filter('formatdtuser')
@@ -74,7 +74,7 @@ def save_user():
         UsersService().save_user(user_id, user_pw, user_name, user_seq)
         result = {'is_success': True}
     except Exception as e:
-        err_log(vw_member_logger, e, 'MemverView.save_user', traceback.format_exc())
+        err_log(vw_member_logger, e, 'UserView.save_user', traceback.format_exc())
         result = {'is_success': False}
     return jsonify(result)
 
@@ -94,6 +94,25 @@ def get_user():
         if user_info is None:
             raise Exception('User Not Found.')
     except Exception as e:
-        err_log(vw_member_logger, e, 'MemverView.get_user', traceback.format_exc())
+        err_log(vw_member_logger, e, 'UserView.get_user', traceback.format_exc())
         raise e
     return render_template('user/_save_user_modal.html', user_info=user_info)
+
+
+@user.route('/deleteUsers', methods=['POST'])
+@login_required
+def delete_users():
+    """
+    사용자 삭제
+    :return:
+    """
+    try:
+        # 파라메터 처리
+        params = request.form
+        user_seq_list = params.getlist('user_seqs')
+        UsersService().check_delete_users(user_seq_list)
+        result = {'is_success': True}
+    except Exception as e:
+        err_log(vw_member_logger, e, 'UserView.delete_users', traceback.format_exc())
+        result = {'is_success': False, 'error_msg': str(e)}
+    return jsonify(result)

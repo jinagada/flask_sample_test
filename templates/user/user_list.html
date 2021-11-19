@@ -22,7 +22,8 @@
   <!-- 사용자 목록 : START -->
   <div class="row">
     <div class="col-md-12">
-      <table class="table">
+      <form id="userListForm" name="userListForm">
+      <table class="table" id="userListTable">
         <thead>
         <tr>
           <th scope="col"></th>
@@ -38,7 +39,7 @@
         <tbody>
         {% for user in user_list %}
           <tr>
-            <td><input type="checkbox" value="{{ user['SEQ'] }}" class="userSeq"></td>
+            <td><input type="checkbox" name="user_seqs" value="{{ user['SEQ'] }}"></td>
             <td>{{ loop.index + (page_num - 1) * row_per_page }}</td>
             <td>{{ user['USER_ID'] }}</td>
             <td>{{ user['USER_PW'] }}</td>
@@ -50,6 +51,7 @@
         {% endfor %}
         </tbody>
       </table>
+      </form>
     </div>
   </div>
   <!-- 사용자 목록 : END -->
@@ -63,6 +65,7 @@
   <!-- Button : START -->
   <div class="row">
     <div class="col-md-12 text-right">
+      <button class="btn btn-danger" type="button" id="goDeleteUser">사용자 삭제</button>
       <button class="btn btn-primary" type="button" id="goInsertUserPopup">사용자 등록</button>
     </div>
   </div>
@@ -84,8 +87,11 @@
               fn_goSaveUser();
           });
           $('.goUpdateUserPopup').click(function (e) {
-              fn_goUpdateUserPopup($(this).parents('tr').find('.userSeq').val())
-          })
+              fn_goUpdateUserPopup($(this).parents('tr').find('input[name="user_seqs"]').val())
+          });
+          $('#goDeleteUser').click(function (e) {
+              fn_goDeleteUser();
+          });
       });
       // 사용자 등록 팝업
       function fn_goInsertUserPopup() {
@@ -131,6 +137,27 @@
               $('#goSaveUser').click(function (e) {
                   fn_goSaveUser();
               });
+          });
+      }
+      // 사용자 삭제
+      function fn_goDeleteUser() {
+          let delUserCount = 0;
+          $('#userListTable').find('input[name="user_seqs"]:checked').each(function () {
+              delUserCount++;
+          });
+          if (delUserCount < 1) {
+              alert('삭제할 사용자를 선택 해 주세요.');
+              return false;
+          }
+          if (!confirm('선택한 사용자를 삭제하시겠습니까?')) {
+              return false;
+          }
+          $.post('{{ url_for('user.delete_users') }}', $('#userListForm').serialize(), function (data) {
+              if (!data.is_success) {
+                  alert(data.error_msg);
+              }
+          }).done(function() {
+              location.reload();
           });
       }
   </script>
