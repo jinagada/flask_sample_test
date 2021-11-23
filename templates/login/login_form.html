@@ -21,6 +21,7 @@
   <!-- 제목 : END -->
   <!-- 로그인 Form : START -->
   <form id="loginForm" name="loginForm" method="post" action="{{ url_for('login.login_process') }}">
+    <input type="hidden" name="next_url" value="{{ next_url }}">
     <div class="row">
       <div class="col-md-2">
         <label for="user_id" class="form-label">아이디</label>

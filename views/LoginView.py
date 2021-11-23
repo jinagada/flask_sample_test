@@ -52,8 +52,9 @@ def login_form():
         params = request.args
     else:
         params = request.form
+    next_url = params.get('next', '')
     login_error = params.get('login_error', False)
-    return render_template('login/login_form.html', login_error=login_error)
+    return render_template('login/login_form.html', login_error=login_error, next_url=next_url)
 
 
 @login.route('/loginProcess', methods=['GET', 'POST'])
@@ -69,15 +70,20 @@ def login_process():
         params = request.form
     user_id = params.get('user_id', '')
     user_pw = params.get('user_pw', '')
+    next_url = params.get('next_url', '')
     user_info = UsersService().get_user_by_id(user_id)
     if user_info and user_info['USER_PW'] == user_pw:
         # Login session 처리
         session.permanent = True
         session['USER_INFO'] = LoginModel(user_id, user_info['USER_NAME'])
         UsersService().update_login_mdate(user_id)
-        return redirect(url_for('main.index'))
+        if next_url:
+            result_url = redirect(next_url)
+        else:
+            result_url = redirect(url_for('main.index'))
     else:
-        return redirect(url_for('login.login_form', login_error=True))
+        result_url = redirect(url_for('login.login_form', login_error=True))
+    return result_url
 
 
 @login.route('/logout')
