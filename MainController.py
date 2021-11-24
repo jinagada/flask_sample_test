@@ -3,7 +3,7 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
-from flask import Flask, request, g, render_template, url_for, jsonify
+from flask import Flask, render_template
 from flask_bootstrap import Bootstrap
 
 from services.Sqlite3Serivce import Sqlite3Service
@@ -42,8 +42,7 @@ def init_global():
     before_app_request 가 먼저 호출되고 그 다음 before_request 가 호출됨
     before_app_request 는 Blueprint 에만 존재함
     """
-    # Ajax 호출에서 오류 발생 시 JSON 으로 response 해야하는 URL 목록
-    g.jsonify_list = [url_for('user.get_user')]
+    pass
 
 
 @app.errorhandler(404)
@@ -65,10 +64,7 @@ def internal_server_error(error):
     :param error:
     :return:
     """
-    if request.path in g.jsonify_list:
-        return jsonify({'error': 500, 'error_msg': str(error.original_exception)}), 500
-    else:
-        return render_template('error/500.html', error_msg=error.original_exception), 500
+    return render_template('error/500.html', error_msg=error.original_exception), 500
 
 
 def init(env):

@@ -80,6 +80,7 @@
 <!-- javascript 영역 -->
 {% block scripts %}
   {{ super() }}
+  <script type="text/javascript" src="{{ url_for('static', filename='js/common.js') }}"></script>
   <script type="text/javascript">
       $(document).ready(function () {
           // checkbox 전체 checked/unckecked 처리
@@ -144,6 +145,8 @@
               if (!data.is_success) {
                   alert('사용자 등록 시 오류가 발생 했습니다.');
               }
+          }).fail(function(e) {
+              common_ajaxFailProcess(e);
           }).done(function() {
               location.reload();
           });
@@ -154,7 +157,7 @@
               $('#saveUserModalArea').html(data);
               $('#saveUserModal').modal('show');
           }).fail(function (e) {
-              alert(e.responseJSON.error_msg);
+              common_ajaxFailProcess(e);
           }).done(function (e) {
               $('#goSaveUser').click(function (e) {
                   fn_goSaveUser();
@@ -178,6 +181,8 @@
               if (!data.is_success) {
                   alert(data.error_msg);
               }
+          }).fail(function(e) {
+              common_ajaxFailProcess(e);
           }).done(function() {
               location.reload();
           });

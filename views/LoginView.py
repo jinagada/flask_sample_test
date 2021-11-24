@@ -1,7 +1,7 @@
 import logging
 from functools import wraps
 
-from flask import Blueprint, request, session, g, render_template, redirect, url_for
+from flask import Blueprint, request, session, g, render_template, redirect, url_for, jsonify
 
 from models.LoginModel import LoginModel
 from services.UsersService import UsersService
@@ -10,18 +10,46 @@ login = Blueprint('login', __name__, url_prefix='/')
 vw_login_logger = logging.getLogger('flask_sample_test.views.LoginView')
 
 
-def login_required(f):
+def login_required(is_next=False, is_json=False):
     """
     Login이 필요한 화면 접근 제어
-    :param f:
+    :param is_next:
+    :param is_json:
     :return:
     """
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if 'USER_INFO' not in session:
-            return redirect(url_for('login.login_form', next=request.url))
-        return f(*args, **kwargs)
-    return decorated_function
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if 'USER_INFO' not in session:
+                if is_next:
+                    return redirect(url_for('login.login_form', next=request.url))
+                else:
+                    if is_json:
+                        return jsonify({'error': 403, 'error_msg': url_for('login.login_form')}), 403
+                    else:
+                        return redirect(url_for('login.login_form'))
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator
+
+
+def admin_login_required(is_json=False):
+    """
+    Login 이후 관리자 권한이 필요한 경우 제어
+    :param is_json:
+    :return:
+    """
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if session['USER_INFO']['user_id'] != 'admin':
+                if is_json:
+                    return jsonify({'error': 401, 'error_msg': 'Unauthorized'}), 401
+                else:
+                    return render_template('error/401.html'), 401
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator
 
 
 @login.before_app_request

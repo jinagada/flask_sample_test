@@ -7,7 +7,7 @@ from flask import Blueprint, request, render_template, jsonify
 from services.UsersService import UsersService
 from utils.LogUtil import err_log
 from utils.PageUtil import calculate_page
-from views.LoginView import login_required
+from views.LoginView import login_required, admin_login_required
 
 user = Blueprint('user', __name__, url_prefix='/user')
 vw_member_logger = logging.getLogger('flask_sample_test.views.UserView')
@@ -36,7 +36,8 @@ def _format_datetime(value, format_str='%Y-%m-%d %H:%M:%S'):
 
 
 @user.route('/userList', methods=['GET', 'POST'])
-@login_required
+@login_required(is_next=True)
+@admin_login_required()
 def user_list():
     """
     사용자 목록
@@ -59,7 +60,8 @@ def user_list():
 
 
 @user.route('/saveUser', methods=['POST'])
-@login_required
+@login_required(is_json=True)
+@admin_login_required(is_json=True)
 def save_user():
     """
     사용자 정보 등록/수정
@@ -81,7 +83,8 @@ def save_user():
 
 
 @user.route('/getUser', methods=['POST'])
-@login_required
+@login_required(is_json=True)
+@admin_login_required(is_json=True)
 def get_user():
     """
     사용자정보 조회
@@ -101,7 +104,8 @@ def get_user():
 
 
 @user.route('/deleteUsers', methods=['POST'])
-@login_required
+@login_required(is_json=True)
+@admin_login_required(is_json=True)
 def delete_users():
     """
     사용자 삭제
