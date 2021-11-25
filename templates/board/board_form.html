@@ -1,0 +1,120 @@
+{% extends "bootstrap/base.html" %}
+{% block title %}Sample Test{% endblock %}
+{% block styles %}
+  {{ super() }}
+  <!-- bootstrap datetimepicker -->
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css"/>
+{% endblock %}
+{% block content %}
+  <div class="container" style="width: auto">
+    <!-- 메뉴바 : START -->
+    {% include 'includes/_navbar.html' %}
+    <!-- 메뉴바 : END -->
+    <!-- 제목 : START -->
+    <div class="row">
+      <div class="col-md-12">
+        <div class="page-header">
+          <h1>게시글 {{ '수정' if board_info else '등록' }}</h1>
+        </div>
+      </div>
+    </div>
+    <!-- 제목 : END -->
+    <!-- 게시글 등록 : START -->
+    <div class="row">
+      <div class="col-md-12">
+        <form id="boardDetailForm" name="boardDetailForm" method="post" class="form-horizontal">
+          <input type="hidden" name="board_seq" id="board_seq" value="{{ board_info['SEQ'] if board_info else '' }}">
+          <input type="hidden" name="page_num" id="page_num" value="{{ page_num }}">
+          <input type="hidden" name="row_per_page" id="row_per_page" value="{{ row_per_page }}">
+          <div class="form-group">
+            <label for="title" class="col-md-2 control-label">제목</label>
+            <div class="col-md-8">
+              <input type="text" class="form-control" id="title" name="title" placeholder="제목" value="{{ board_info['TITLE'] if board_info else '' }}">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="contents" class="col-md-2 control-label">내용</label>
+            <div class="col-md-8">
+              <textarea class="form-control" id="contents" name="contents" rows="5">{{ board_info['CONTENTS'] if board_info else '' }}</textarea>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+    <!-- 게시글 등록 : END -->
+    <!-- Button : START -->
+    <div class="row">
+      <div class="col-md-12 text-right">
+        <button class="btn btn-success" type="button" id="goBoardList">목록</button>
+        <button class="btn btn-primary" type="button" id="doSaveBoard">저장</button>
+      </div>
+    </div>
+    <!-- Button : END -->
+  </div>
+{% endblock %}
+<!-- javascript 영역 -->
+{% block scripts %}
+  {{ super() }}
+  <script type="text/javascript" src="{{ url_for('static', filename='js/common.js') }}"></script>
+  <script type="text/javascript">
+    $(document).ready(function () {
+        // 게시글 저장
+        $('#doSaveBoard').click(function (e) {
+            fn_doSaveBoard();
+        });
+        // 목록으로
+        $('#goBoardList').click(function (e) {
+            fn_goBoardList();
+        });
+    });
+    // 게시글 저장
+    function fn_doSaveBoard() {
+        const titleVal = $('#title').val();
+        const contentsVal = $('#contents').val();
+        if ($.trim(titleVal) === '') {
+            alert('제목을 입력 해 주세요.');
+            return false;
+        }
+        if ($.trim(titleVal).length > 250) {
+            alert('제목은 250자까지만 가능합니다.');
+            return false;
+        }
+        if ($.trim(contentsVal) === '') {
+            alert('내용을 입력 해 주세요.');
+            return false;
+        }
+        if ($.trim(contentsVal).length > 5000) {
+            alert('내용은 5,000자까지만 가능합니다.');
+            return false;
+        }
+        let isSaveFail = false;
+        $.post('{{ url_for('board.save_board') }}', $('#boardDetailForm').serialize(), function (data) {
+            if (!data.is_success) {
+                alert('게시글 저장 시 오류가 발생 하였습니다.');
+                isSaveFail = true;
+            } else {
+                alert('게시글이 저장되었습니다.');
+                isSaveFail = false;
+            }
+        }).fail(function (e) {
+            common_ajaxFailProcess(e);
+        }).done(function () {
+            if (!isSaveFail) {
+                const board_seq = $('#board_seq').val();
+                // 수정된 경우 상세화면으로 이동
+                if (board_seq && Number(board_seq) > 0) {
+                    $('#boardDetailForm')[0].action = '{{ url_for('board.board_detail') }}';
+                    $('#boardDetailForm')[0].submit();
+                } else {
+                    fn_goBoardList();
+                }
+            }
+        });
+    }
+    // 목록으로
+    function fn_goBoardList() {
+        $('#boardDetailForm')[0].action = '{{ url_for('board.board_list') }}';
+        $('#boardDetailForm')[0].submit();
+    }
+  </script>
+{% endblock %}

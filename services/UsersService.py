@@ -68,7 +68,7 @@ class UsersService:
         """
         try:
             result = Sqlite3().cmd('INSERT INTO USERS (USER_ID, USER_PW, USER_NAME, RDATE, MDATE) VALUES (?, ?, ?, DATETIME(\'now\', \'localtime\'), DATETIME(\'now\', \'localtime\'))',
-                          (user_id, user_pw, user_name))
+                                   (user_id, user_pw, user_name))
         except Exception as e:
             err_log(self.logger, e, 'UsersService.insert_user', traceback.format_exc())
             result = -1
@@ -105,7 +105,7 @@ class UsersService:
         """
         try:
             result = Sqlite3().cmd('UPDATE USERS SET USER_ID = ?, USER_PW = ?, USER_NAME = ?, MDATE = DATETIME(\'now\', \'localtime\') WHERE SEQ = ?',
-                          (user_id, user_pw, user_name, user_seq))
+                                   (user_id, user_pw, user_name, user_seq))
         except Exception as e:
             err_log(self.logger, e, 'UsersService.insert_user', traceback.format_exc())
             result = -1

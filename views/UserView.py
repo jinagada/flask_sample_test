@@ -10,10 +10,10 @@ from utils.PageUtil import calculate_page
 from views.LoginView import login_required, admin_login_required
 
 user = Blueprint('user', __name__, url_prefix='/user')
-vw_member_logger = logging.getLogger('flask_sample_test.views.UserView')
+vw_user_logger = logging.getLogger('flask_sample_test.views.UserView')
 
 
-@user.app_template_filter('formatdtuser')
+@user.app_template_filter('format_dt')
 def _format_datetime(value, format_str='%Y-%m-%d %H:%M:%S'):
     if type(value) is str:
         if value[-1] != 'Z':
@@ -77,7 +77,7 @@ def save_user():
         UsersService().save_user(user_id, user_pw, user_name, user_seq)
         result = {'is_success': True}
     except Exception as e:
-        err_log(vw_member_logger, e, 'UserView.save_user', traceback.format_exc())
+        err_log(vw_user_logger, e, 'UserView.save_user', traceback.format_exc())
         result = {'is_success': False}
     return jsonify(result)
 
@@ -98,7 +98,7 @@ def get_user():
         if user_info is None:
             raise Exception('User Not Found.')
     except Exception as e:
-        err_log(vw_member_logger, e, 'UserView.get_user', traceback.format_exc())
+        err_log(vw_user_logger, e, 'UserView.get_user', traceback.format_exc())
         raise e
     return render_template('user/_save_user_modal.html', user_info=user_info)
 
@@ -118,6 +118,6 @@ def delete_users():
         UsersService().check_delete_users(user_seq_list)
         result = {'is_success': True}
     except Exception as e:
-        err_log(vw_member_logger, e, 'UserView.delete_users', traceback.format_exc())
+        err_log(vw_user_logger, e, 'UserView.delete_users', traceback.format_exc())
         result = {'is_success': False, 'error_msg': str(e)}
     return jsonify(result)

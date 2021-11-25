@@ -7,6 +7,7 @@ from flask import Flask, render_template
 from flask_bootstrap import Bootstrap
 
 from services.Sqlite3Serivce import Sqlite3Service
+from views.BoardView import board
 from views.LoginView import login
 from views.MainView import main
 from views.UserView import user
@@ -29,6 +30,7 @@ app.permanent_session_lifetime = timedelta(minutes=5)
 app.register_blueprint(main)
 app.register_blueprint(login)
 app.register_blueprint(user)
+app.register_blueprint(board)
 # Bootstrap 설정
 Bootstrap(app)
 # env 설정

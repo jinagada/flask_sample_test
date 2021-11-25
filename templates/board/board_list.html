@@ -1,0 +1,158 @@
+{% extends "bootstrap/base.html" %}
+{% block title %}Sample Test{% endblock %}
+{% block styles %}
+  {{ super() }}
+  <!-- bootstrap datetimepicker -->
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css"/>
+{% endblock %}
+{% block content %}
+  <div class="container" style="width: auto">
+    <!-- 메뉴바 : START -->
+    {% include 'includes/_navbar.html' %}
+    <!-- 메뉴바 : END -->
+    <!-- 제목 : START -->
+    <div class="row">
+      <div class="col-md-12">
+        <div class="page-header">
+          <h1>게시글 목록</h1>
+        </div>
+      </div>
+    </div>
+    <!-- 제목 : END -->
+    <!-- 게시글 목록 : START -->
+    <div class="row">
+      <div class="col-md-12">
+        <form id="boardListForm" name="boardListForm" method="post">
+          <input type="hidden" name="page_num" id="page_num" value="1">
+          <input type="hidden" name="row_per_page" id="row_per_page" value="10">
+          <input type="hidden" name="board_seq" id="board_seq">
+          <table class="table table-hover" id="boardListTable">
+            <thead>
+            <tr>
+              <th scope="col"><input type="checkbox" id="checkedAll"></th>
+              <th scope="col">#</th>
+              <th scope="col">제목</th>
+              <th scope="col">등록자</th>
+              <th scope="col">등록일시</th>
+              <th scope="col">수정자</th>
+              <th scope="col">수정일시</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% if board_list and board_list|length > 0 %}
+            {% for board in board_list %}
+              <tr>
+                <td><input type="checkbox" name="board_seqs" value="{{ board['SEQ'] }}"></td>
+                <td>{{ totalcount - ((page_num - 1) * row_per_page) - loop.index0 }}</td>
+                <td class="goBoardDetail"><a>{{ board['TITLE'] }}</a></td>
+                <td>{{ board['RUSER'] }}</td>
+                <td>{{ board['RDATE']|format_dt('%Y.%m.%d %H:%M:%S') }}</td>
+                <td>{{ board['MUSER'] }}</td>
+                <td>{{ board['MDATE']|format_dt('%Y.%m.%d %H:%M:%S') }}</td>
+              </tr>
+            {% endfor %}
+            {% else %}
+              <tr>
+                <td class="text-center" colspan="7">게시글이 없습니다.</td>
+              </tr>
+            {% endif %}
+            </tbody>
+          </table>
+        </form>
+      </div>
+    </div>
+    <!-- 게시글 목록 : END -->
+    <!-- Paging : START -->
+    <div class="row">
+      <div class="col-md-12 text-center">
+        {% include 'includes/_paging.html' %}
+      </div>
+    </div>
+    <!-- Paging : END -->
+    <!-- Button : START -->
+    <div class="row">
+      <div class="col-md-12 text-right">
+        <button class="btn btn-danger" type="button" id="doDeleteBoard">삭제</button>
+        <button class="btn btn-primary" type="button" id="goInsertBoard">등록</button>
+      </div>
+    </div>
+    <!-- Button : END -->
+  </div>
+{% endblock %}
+<!-- javascript 영역 -->
+{% block scripts %}
+  {{ super() }}
+  <script type="text/javascript" src="{{ url_for('static', filename='js/common.js') }}"></script>
+  <script type="text/javascript">
+      $(document).ready(function () {
+          // checkbox 전체 checked/unckecked 처리
+          $('#checkedAll').click(function (e) {
+              fn_checkedAll_toggle();
+          });
+          // 등록
+          $('#goInsertBoard').click(function (e) {
+              fn_goInsertBoard();
+          });
+          // 상세보기
+          $('.goBoardDetail').click(function (e) {
+              fn_goBoardDetail($(this).parents('tr').find('input[name="board_seqs"]').val());
+          });
+          // 삭제
+          $('#doDeleteBoard').click(function (e) {
+              fn_doDeleteBoard();
+          });
+      });
+      // checkbox 전체 checked/unckecked 처리
+      function fn_checkedAll_toggle() {
+          if ($('#checkedAll')[0].checked) {
+              $('#boardListTable').find('input[name="board_seqs"]').each(function () {
+                  this.checked = true;
+              });
+          } else {
+              $('#boardListTable').find('input[name="board_seqs"]').each(function () {
+                  this.checked = null;
+              });
+          }
+      }
+      // 페이지 이동
+      function fn_goPage(page_num) {
+          $('#page_num').val(page_num);
+          $('#boardListForm')[0].action = '{{ url_for('board.board_list') }}';
+          $('#boardListForm')[0].submit();
+      }
+      // 등록
+      function fn_goInsertBoard() {
+          $('#boardListForm')[0].action = '{{ url_for('board.insert_board_form') }}';
+          $('#boardListForm')[0].submit();
+      }
+      // 상세보기
+      function fn_goBoardDetail(board_seq) {
+          $('#board_seq').val(board_seq);
+          $('#boardListForm')[0].action = '{{ url_for('board.board_detail') }}';
+          $('#boardListForm')[0].submit();
+      }
+      // 삭제
+      function fn_doDeleteBoard() {
+          let delBoardCount = 0;
+          $('#boardListTable').find('input[name="board_seqs"]:checked').each(function () {
+              delBoardCount++;
+          });
+          if (delBoardCount < 1) {
+              alert('삭제할 게시물을 선택 해 주세요.');
+              return false;
+          }
+          if (!confirm('선택한 게시물을 삭제하시겠습니까?')) {
+              return false;
+          }
+          $.post('{{ url_for('board.delete_boards') }}', $('#boardListForm').serialize(), function (data) {
+              if (!data.is_success) {
+                  alert(data.error_msg);
+              }
+          }).fail(function(e) {
+              common_ajaxFailProcess(e);
+          }).done(function() {
+              location.reload();
+          });
+      }
+  </script>
+{% endblock %}

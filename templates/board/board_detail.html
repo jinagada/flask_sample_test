@@ -1,0 +1,106 @@
+{% extends "bootstrap/base.html" %}
+{% block title %}Sample Test{% endblock %}
+{% block styles %}
+  {{ super() }}
+  <!-- bootstrap datetimepicker -->
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css"/>
+{% endblock %}
+{% block content %}
+  <div class="container" style="width: auto">
+    <!-- 메뉴바 : START -->
+    {% include 'includes/_navbar.html' %}
+    <!-- 메뉴바 : END -->
+    <!-- 제목 : START -->
+    <div class="row">
+      <div class="col-md-12">
+        <div class="page-header">
+          <h1>게시글 상세보기</h1>
+        </div>
+      </div>
+    </div>
+    <!-- 제목 : END -->
+    <!-- 게시글 등록 : START -->
+    <div class="row">
+      <div class="col-md-12">
+        <form id="boardDetailForm" name="boardDetailForm" method="post" class="form-horizontal">
+          <input type="hidden" name="board_seq" id="board_seq" value="{{ board_info['SEQ'] }}">
+          <input type="hidden" name="board_seqs" value="{{ board_info['SEQ'] }}">
+          <input type="hidden" name="page_num" id="page_num" value="{{ page_num }}">
+          <input type="hidden" name="row_per_page" id="row_per_page" value="{{ row_per_page }}">
+          <div class="form-group">
+            <label class="col-md-2 control-label">제목</label>
+            <div class="col-md-8" style="padding-top: 2px;"><p class="lead">{{ board_info['TITLE'] }}</p></div>
+          </div>
+          <div class="form-group">
+            <label class="col-md-2 control-label">내용</label>
+            <div class="col-md-8" style="padding-top: 7px;"><textarea class="form-control" rows="5" readonly>{{ board_info['CONTENTS'] }}</textarea></div>
+          </div>
+          <div class="form-group">
+            <label class="col-md-2 control-label">등록자</label>
+            <div class="col-md-2" style="padding-top: 7px;">{{ board_info['RUSER'] }} / {{ board_info['RDATE']|format_dt('%Y.%m.%d %H:%M:%S') }}</div>
+          </div>
+          <div class="form-group">
+            <label class="col-md-2 control-label">수정자</label>
+            <div class="col-md-2" style="padding-top: 7px;">{{ board_info['MUSER'] }} / {{ board_info['MDATE']|format_dt('%Y.%m.%d %H:%M:%S') }}</div>
+          </div>
+        </form>
+      </div>
+    </div>
+    <!-- 게시글 등록 : END -->
+    <!-- Button : START -->
+    <div class="row">
+      <div class="col-md-12 text-right">
+        <button class="btn btn-success" type="button" id="goBoardList">목록</button>
+        <button class="btn btn-danger" type="button" id="doDeleteBoard">삭제</button>
+        <button class="btn btn-primary" type="button" id="goInsertBoard">수정</button>
+      </div>
+    </div>
+    <!-- Button : END -->
+  </div>
+{% endblock %}
+<!-- javascript 영역 -->
+{% block scripts %}
+  {{ super() }}
+  <script type="text/javascript" src="{{ url_for('static', filename='js/common.js') }}"></script>
+  <script type="text/javascript">
+    $(document).ready(function () {
+        // 목록
+        $('#goBoardList').click(function (e) {
+            fn_goBoardList();
+        });
+        // 등록
+        $('#goInsertBoard').click(function (e) {
+            fn_goInsertBoard();
+        });
+        // 삭제
+        $('#doDeleteBoard').click(function (e) {
+            fn_doDeleteBoard();
+        });
+    });
+    // 목록
+    function fn_goBoardList() {
+        $('#boardDetailForm')[0].action = '{{ url_for('board.board_list') }}';
+        $('#boardDetailForm')[0].submit();
+    }
+    // 등록
+    function fn_goInsertBoard() {
+        $('#boardDetailForm')[0].action = '{{ url_for('board.insert_board_form') }}';
+        $('#boardDetailForm')[0].submit();
+    }
+    // 삭제
+    function fn_doDeleteBoard() {
+        if (!confirm('게시물을 삭제하시겠습니까?')) {
+            return false;
+        }
+        $.post('{{ url_for('board.delete_boards') }}', $('#boardDetailForm').serialize(), function (data) {
+            if (!data.is_success) {
+                alert(data.error_msg);
+            }
+        }).fail(function(e) {
+            common_ajaxFailProcess(e);
+        }).done(function() {
+            fn_goBoardList();
+        });
+    }
+  </script>
+{% endblock %}

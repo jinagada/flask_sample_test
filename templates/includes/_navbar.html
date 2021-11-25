@@ -6,7 +6,8 @@
     <div class="collapse navbar-collapse">
       <ul class="nav navbar-nav">
         <li><a href="{{ url_for('main.index') }}">첫 화면</a></li>
-        <li><a href="{{ url_for('user.user_list') }}">사용자 목록</a></li>
+        <li><a href="{{ url_for('user.user_list') }}">사용자</a></li>
+        <li><a href="{{ url_for('board.board_list') }}">게시판</a></li>
         {% if 'USER_INFO' not in session %}
         <li><a href="{{ url_for('login.login_form') }}">로그인</a></li>
         {% else %}
