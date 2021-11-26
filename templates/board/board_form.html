@@ -17,7 +17,7 @@
     <!-- 게시글 등록 : START -->
     <div class="row">
       <div class="col-md-12">
-        <form id="boardDetailForm" name="boardDetailForm" method="post" class="form-horizontal">
+        <form id="boardDetailForm" name="boardDetailForm" method="post" enctype="multipart/form-data" class="form-horizontal">
           <input type="hidden" name="board_seq" id="board_seq" value="{{ board_info['SEQ'] if board_info else '' }}">
           <input type="hidden" name="page_num" id="page_num" value="{{ page_num }}">
           <input type="hidden" name="row_per_page" id="row_per_page" value="{{ row_per_page }}">
@@ -31,6 +31,31 @@
             <label for="contents" class="col-md-2 control-label">내용</label>
             <div class="col-md-8">
               <textarea class="form-control" id="contents" name="contents" rows="5">{{ board_info['CONTENTS'] if board_info else '' }}</textarea>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="contents" class="col-md-2 control-label">파일</label>
+            <div class="col-md-8">
+              <div class="row">
+                <div class="col-md-4">
+                  <button class="btn btn-sm btn-primary" type="button">추가</button>
+                </div>
+              </div>
+              <div class="row"><div class="col-md-4">&nbsp;</div></div>
+              <div class="row">
+                <div class="col-md-4">
+                  <label>파일1 <button class="btn btn-sm btn-danger" type="button">삭제</button></label>
+                  <input name="board_files" type="file">
+                  <p class="help-block">1번째 파일</p>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-4">
+                  <label>파일2 <button class="btn btn-sm btn-danger" type="button">삭제</button></label>
+                  <input name="board_files" type="file">
+                  <p class="help-block">2번째 파일</p>
+                </div>
+              </div>
             </div>
           </div>
         </form>

@@ -22,6 +22,8 @@ class Sqlite3Service:
             self._insert_first_user()
         if self._check_table_boards() < 0:
             self._make_table_boards()
+        if self._check_table_files() < 0:
+            self._make_table_files()
 
     def _check_table_users(self):
         """
@@ -98,3 +100,34 @@ class Sqlite3Service:
             self.logger.info('Maked BOARDS Table')
         except Exception as e:
             err_log(self.logger, e, 'Sqlite3Service._make_table_boards', traceback.format_exc())
+
+    def _check_table_files(self):
+        """
+        테이블 확인
+        :return:
+        """
+        try:
+            tmp = Sqlite3().execute(query='SELECT COUNT(*) AS CNT FROM FILES')
+            result = tmp[0]['CNT']
+            self.logger.info(f'Check FILES Table : {result}')
+        except Exception as e:
+            err_log(self.logger, e, 'Sqlite3Service._check_table_files', traceback.format_exc())
+            result = -1
+        return result
+
+    def _make_table_files(self):
+        """
+        테이블 생성
+        :return:
+        """
+        try:
+            Sqlite3().cmd(query='''CREATE TABLE FILES
+            (SEQ INTEGER PRIMARY KEY AUTOINCREMENT,
+             BOARD_SEQ INTEGER,
+             PATH TEXT,
+             FNAME TEXT,
+             RDATE TEXT,
+             RUSER TEXT)''')
+            self.logger.info('Maked FILES Table')
+        except Exception as e:
+            err_log(self.logger, e, 'Sqlite3Service._make_table_files', traceback.format_exc())
