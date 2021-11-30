@@ -35,26 +35,33 @@
           </div>
           <div class="form-group">
             <label for="contents" class="col-md-2 control-label">파일</label>
-            <div class="col-md-8">
+            <div class="col-md-8" id="attachFileList">
               <div class="row">
                 <div class="col-md-4">
-                  <button class="btn btn-sm btn-primary" type="button">추가</button>
+                  <button class="btn btn-sm btn-primary" type="button" id="addFileForm">추가</button>
                 </div>
               </div>
               <div class="row"><div class="col-md-4">&nbsp;</div></div>
+              {% if file_list and file_list|length > 0 %}
+              {% for file in file_list %}
               <div class="row">
                 <div class="col-md-4">
-                  <label>파일1 <button class="btn btn-sm btn-danger" type="button">삭제</button></label>
-                  <input name="board_files" type="file">
-                  <p class="help-block">1번째 파일</p>
+                  <label>
+                    업로드 파일
+                    <button class="btn btn-sm btn-success uploadAttachFile" type="button">올리기</button>
+                    <button class="btn btn-sm btn-warning resetFileForm" type="button">지우기</button>
+                    <button class="btn btn-sm btn-danger deleteFileForm" type="button">삭제</button>
+                  </label>
+                  <input type="file" name="board_files">
+                  <input type="hidden" name="file_seqs" value="{{ file['SEQ'] }}">
+                  <input type="hidden" name="file_org_names" value="{{ file['ONAME'] }}">
+                  <input type="hidden" name="file_tmp_names" value="{{ file['FNAME'] }}">
+                  <input type="hidden" name="file_tmp_paths" value="{{ file['PATH'] }}">
+                  {% set filepath =  file['PATH'] + '/' + file['FNAME'] %}
+                  <p class="help-block tmpFilePath">{{ url_for('static', filename=filepath) }}</p>
                 </div>
-              </div>
-              <div class="row">
-                <div class="col-md-4">
-                  <label>파일2 <button class="btn btn-sm btn-danger" type="button">삭제</button></label>
-                  <input name="board_files" type="file">
-                  <p class="help-block">2번째 파일</p>
-                </div>
+                {% endfor %}
+                {% endif %}
               </div>
             </div>
           </div>
@@ -86,6 +93,16 @@
         $('#goBoardList').click(function (e) {
             fn_goBoardList();
         });
+        // 파일업로드 추가
+        $('#addFileForm').click(function (e) {
+            fn_addFileForm();
+        });
+        // 파일업로드 삭제
+        fn_deleteFileForm();
+        // 파일업로드 내용 지우기
+        fn_resetFileForm();
+        // 파일 올리기
+        fn_uploadAttachFile();
     });
     // 게시글 저장
     function fn_doSaveBoard() {
@@ -135,6 +152,74 @@
     function fn_goBoardList() {
         $('#boardDetailForm')[0].action = '{{ url_for('board.board_list') }}';
         $('#boardDetailForm')[0].submit();
+    }
+    // 파일업로드 추가
+    function fn_addFileForm() {
+        const htmlStr = '<div class="row">\n'
+            + '  <div class="col-md-4">\n'
+            + '    <label>\n'
+            + '      업로드 파일\n'
+            + '      <button class="btn btn-sm btn-success uploadAttachFile" type="button">올리기</button>\n'
+            + '      <button class="btn btn-sm btn-warning resetFileForm" type="button">지우기</button>\n'
+            + '      <button class="btn btn-sm btn-danger deleteFileForm" type="button">삭제</button>\n'
+            + '    </label>\n'
+            + '    <input type="file" name="board_files">\n'
+            + '    <input type="hidden" name="file_seqs">\n'
+            + '    <input type="hidden" name="file_org_names">\n'
+            + '    <input type="hidden" name="file_tmp_names">\n'
+            + '    <input type="hidden" name="file_tmp_paths">\n'
+            + '    <p class="help-block tmpFilePath"></p>\n'
+            + '  </div>\n'
+            + '</div>\n';
+        $('#attachFileList').append(htmlStr);
+        fn_deleteFileForm();
+        fn_resetFileForm();
+        fn_uploadAttachFile();
+    }
+    // 파일업로드 삭제
+    function fn_deleteFileForm() {
+        $('.deleteFileForm').off().click(function (e) {
+            $($(this).parents('.row')[0]).empty();
+        });
+    }
+    // 파일업로드 내용 지우기
+    function fn_resetFileForm() {
+        $('.resetFileForm').off().click(function (e) {
+            $($(this).parents('div')[0]).find('input[name="board_files"]').val('');
+        });
+    }
+    // 파일 올리기
+    function fn_uploadAttachFile() {
+        $('.uploadAttachFile').off().click(function (e) {
+            const fileObj = $($(this).parents('div')[0]).find('input[name="board_files"]');
+            const fileOrgName = $($(this).parents('div')[0]).find('input[name="file_org_names"]');
+            const fileTmpName = $($(this).parents('div')[0]).find('input[name="file_tmp_names"]');
+            const fileTmpPath = $($(this).parents('div')[0]).find('input[name="file_tmp_paths"]');
+            const tmpFilePathObj = $($(this).parents('div')[0]).find('.tmpFilePath');
+            if (fileObj[0].files.length === 0) {
+                alert('파일을 선택 해 주세요.');
+                return false;
+            }
+            const formData = new FormData();
+            formData.append('attach_file', fileObj[0].files[0]);
+            $.ajax({
+                type: 'POST',
+                url: '{{ url_for('board.upload_file') }}',
+                processData: false,
+                contentType: false,
+                data: formData
+            }).done(function (data) {
+                fileOrgName.val(data.file_org_name);
+                fileTmpName.val(data.file_tmp_name);
+                fileTmpPath.val(data.file_tmp_path);
+                tmpFilePathObj.text('{{ url_for('static', filename='') }}' + data.file_tmp_path + '/' + data.file_tmp_name);
+            }).fail(function (e) {
+                alert('파일업로드 실패');
+                common_ajaxFailProcess(e);
+            }).always(function (e) {
+                fileObj.val('');
+            });
+        });
     }
   </script>
 {% endblock %}

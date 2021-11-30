@@ -126,6 +126,7 @@ class Sqlite3Service:
              BOARD_SEQ INTEGER,
              PATH TEXT,
              FNAME TEXT,
+             ONAME TEXT,
              RDATE TEXT,
              RUSER TEXT)''')
             self.logger.info('Maked FILES Table')

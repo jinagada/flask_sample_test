@@ -107,7 +107,7 @@ class Sqlite3:
             else:
                 result = cursor.rowcount
         except Exception as e:
-            err_log(self.logger, e, 'Sqlite3._make_table_users', traceback.format_exc())
+            err_log(self.logger, e, 'Sqlite3.cmd', traceback.format_exc())
             result = None
         finally:
             self._close_conn()

@@ -3,7 +3,7 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
-from flask import Flask, render_template
+from flask import Flask, g, render_template
 from flask_bootstrap import Bootstrap
 
 from services.Sqlite3Serivce import Sqlite3Service
@@ -26,6 +26,8 @@ print(key)
 """
 app.secret_key = 'cf7f5046e2f3b85087a1d388fb8bec62'
 app.permanent_session_lifetime = timedelta(minutes=5)
+# 파일업로드 크기 설정(2MB)
+app.config['MAX_CONTENT_LENGTH'] = 2 * 1000 * 1000
 # Blueprint 설정
 app.register_blueprint(main)
 app.register_blueprint(login)
@@ -44,7 +46,8 @@ def init_global():
     before_app_request 가 먼저 호출되고 그 다음 before_request 가 호출됨
     before_app_request 는 Blueprint 에만 존재함
     """
-    pass
+    if 'env_val' not in g:
+        g.env_val = env_val
 
 
 @app.errorhandler(404)
