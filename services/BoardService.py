@@ -77,7 +77,7 @@ class BoardService:
         """
         try:
             result = Sqlite3().cmd('UPDATE BOARDS SET TITLE = ?, CONTENTS = ?, MUSER = ?, MDATE = DATETIME(\'now\', \'localtime\') WHERE SEQ = ?',
-                                   (title, contents, user_id, board_seq), True)
+                                   (title, contents, user_id, board_seq))
         except Exception as e:
             err_log(self.logger, e, 'BoardService.update_board', traceback.format_exc())
             result = -1
@@ -90,6 +90,10 @@ class BoardService:
         :return:
         """
         try:
+            # 파일 확인 후 삭제
+            for board_seq in board_seq_list:
+                self.save_board_file(int(board_seq), None, None, None, None, None)
+            # 게시글 삭제
             in_query_str = ','.join(list(''.rjust(len(board_seq_list), '?')))
             result = Sqlite3().cmd(f'DELETE FROM BOARDS WHERE SEQ IN ({in_query_str})', tuple(board_seq_list))
         except Exception as e:
@@ -129,9 +133,9 @@ class BoardService:
             file_list = Sqlite3().execute('SELECT SEQ, BOARD_SEQ, PATH, FNAME, ONAME, RDATE, RUSER FROM FILES WHERE BOARD_SEQ = ? ORDER BY SEQ', (board_seq,))
             if is_key:
                 if file_list:
-                    file_info_list = []
+                    file_info_list = {}
                     for file in file_list:
-                        file_info_list.append({file['SEQ']: file})
+                        file_info_list[file['SEQ']] = file
                 else:
                     file_info_list = None
             else:
@@ -201,19 +205,18 @@ class BoardService:
         :param user_id:
         :return:
         """
+        upload_path = PathConfig[g.env_val]['file_path']
+        file_base_path = PathConfig[g.env_val]['file_upload_home']
+        os.makedirs(file_base_path + os.path.sep + upload_path, exist_ok=True)
         if file_seqs and len(file_seqs) > 0:
-            file_save_info = []
             # 업로드 디렉토리 설정
-            upload_path = PathConfig[g.env_val]['file_path']
-            file_base_path = PathConfig[g.env_val]['file_upload_home']
-            os.makedirs(file_base_path + os.path.sep + upload_path, exist_ok=True)
             file_seq_list = self.get_board_file_list(board_seq, True)
             for idx, file_seq in enumerate(file_seqs):
                 # 기존에 등록된 데이터가 있는 경우
-                if file_seq:
+                if file_seq and file_seq_list:
                     # 기존 데이터와 비교 후 다르면 데이터 변경
-                    old_info = file_seq_list[file_seq] if file_seq_list else None
-                    if old_info['PATH'] != file_tmp_paths[idx]:
+                    old_info = file_seq_list[int(file_seq)]
+                    if old_info and old_info['PATH'] != file_tmp_paths[idx]:
                         # 기존 파일 삭제
                         old_file_path = file_base_path + os.path.sep + old_info['PATH'] + os.path.sep + old_info['FNAME']
                         if os.path.exists(old_file_path):
@@ -222,11 +225,11 @@ class BoardService:
                         tmp_file_path = file_base_path + os.path.sep + file_tmp_paths[idx] + os.path.sep + file_tmp_names[idx]
                         new_file_path = file_base_path + os.path.sep + upload_path + os.path.sep + file_tmp_names[idx]
                         shutil.move(tmp_file_path, new_file_path)
-                        # 데이터 변경을 위한 정보 저장
-                        file_save_info.append({file_seq: {'act': 'upd', 'file_seq': file_seq, 'oname': file_org_names[idx], 'fname': file_tmp_names[idx], 'path': upload_path}})
+                        # 변경된 파일로 다시 저장
+                        self.update_file(file_seq, upload_path, file_tmp_names[idx], file_org_names[idx], user_id)
                 # 등록된 데이터가 없는 경우
-                else:
-                    # 이동할 파일이 있는 확인
+                elif not file_seq:
+                    # 이동할 파일이 있는지 확인
                     if file_org_names[idx]:
                         # 임시파일을 실제 디렉토리로 이동
                         tmp_file_path = file_base_path + os.path.sep + file_tmp_paths[idx] + os.path.sep + file_tmp_names[idx]
@@ -234,4 +237,24 @@ class BoardService:
                         shutil.move(tmp_file_path, new_file_path)
                         # 파일등록
                         self.insert_file(board_seq, upload_path, file_tmp_names[idx], file_org_names[idx], user_id)
-            # 삭제 대상 파일 확인
+            # 삭제 대상 파일 확인 후 삭제
+            if file_seq_list:
+                for key in list(file_seq_list.keys()):
+                    if str(key) not in file_seqs:
+                        # 파일 삭제
+                        old_info = file_seq_list[key]
+                        old_file_path = file_base_path + os.path.sep + old_info['PATH'] + os.path.sep + old_info['FNAME']
+                        if os.path.exists(old_file_path):
+                            os.remove(old_file_path)
+                        # 데이터 삭제
+                        self.delete_file(key)
+        else:
+            # 화면에서 등록한 파일이 없는경우 데이터를 확인 후 삭제
+            file_seq_list = self.get_board_file_list(board_seq)
+            for old_file in file_seq_list:
+                # 파일 삭제
+                old_file_path = file_base_path + os.path.sep + old_file['PATH'] + os.path.sep + old_file['FNAME']
+                if os.path.exists(old_file_path):
+                    os.remove(old_file_path)
+                # 데이터 삭제
+                self.delete_file(old_file['SEQ'])

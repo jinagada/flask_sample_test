@@ -31,6 +31,21 @@
             <div class="col-md-8" style="padding-top: 7px;"><textarea class="form-control" rows="5" readonly>{{ board_info['CONTENTS'] }}</textarea></div>
           </div>
           <div class="form-group">
+            <label class="col-md-2 control-label">파일</label>
+            <div class="col-md-8" style="padding-top: 7px;">
+              <ul class="list-group">
+                {% if file_list and file_list|length > 0 %}
+                {% for file in file_list %}
+                  {% set filepath =  file['PATH'] + '/' + file['FNAME'] %}
+                  <li class="list-group-item">{{ url_for('static', filename=filepath) }}({{ file['ONAME'] }})</li>
+                {% endfor %}
+                {% else %}
+                  <li class="list-group-item">파일없음</li>
+                {% endif %}
+              </ul>
+            </div>
+          </div>
+          <div class="form-group">
             <label class="col-md-2 control-label">등록자</label>
             <div class="col-md-2" style="padding-top: 7px;">{{ board_info['RUSER'] }} / {{ board_info['RDATE']|format_dt('%Y.%m.%d %H:%M:%S') }}</div>
           </div>

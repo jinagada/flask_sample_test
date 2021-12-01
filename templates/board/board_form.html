@@ -60,9 +60,9 @@
                   {% set filepath =  file['PATH'] + '/' + file['FNAME'] %}
                   <p class="help-block tmpFilePath">{{ url_for('static', filename=filepath) }}</p>
                 </div>
-                {% endfor %}
-                {% endif %}
               </div>
+              {% endfor %}
+              {% endif %}
             </div>
           </div>
         </form>
@@ -122,6 +122,17 @@
         }
         if ($.trim(contentsVal).length > 5000) {
             alert('내용은 5,000자까지만 가능합니다.');
+            return false;
+        }
+        let uploadWaitCount = 0;
+        $('input[name="board_files"]').each(function () {
+            console.log($(this).val());
+            if ($(this).val() !== '') {
+                uploadWaitCount++;
+            }
+        });
+        if (uploadWaitCount > 0) {
+            alert('올리기 하지 않은 파일이 있습니다. 올리기 혹은 지우기 해 주세요.');
             return false;
         }
         let isSaveFail = false;
