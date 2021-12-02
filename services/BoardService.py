@@ -50,7 +50,7 @@ class BoardService:
             board_info = None
         return board_info
 
-    def insert_board(self, title, contents, user_id):
+    def _insert_board(self, title, contents, user_id):
         """
         Board 정보 등록
         :param title:
@@ -66,7 +66,7 @@ class BoardService:
             result = -1
         return result
 
-    def update_board(self, board_seq, title, contents, user_id):
+    def _update_board(self, board_seq, title, contents, user_id):
         """
         Board 정보 수정
         :param board_seq:
@@ -115,9 +115,9 @@ class BoardService:
         else:
             board_info = None
         if board_info:
-            result = self.update_board(board_seq, title, contents, user_id)
+            result = self._update_board(board_seq, title, contents, user_id)
         else:
-            result = self.insert_board(title, contents, user_id)
+            result = self._insert_board(title, contents, user_id)
         if result < 1:
             raise Exception('Save Board Error')
         return result
@@ -145,7 +145,20 @@ class BoardService:
             file_info_list = None
         return file_info_list
 
-    def insert_file(self, board_seq, path, fname, oname, user_id):
+    def get_file_by_seq(self, file_seq):
+        """
+        File 정보 조회
+        :param file_seq:
+        :return:
+        """
+        try:
+            file_info = Sqlite3().execute('SELECT SEQ, BOARD_SEQ, PATH, FNAME, ONAME, RDATE, RUSER FROM FILES WHERE SEQ = ?', (file_seq,), True)
+        except Exception as e:
+            err_log(self.logger, e, 'BoardService.get_file_by_seq', traceback.format_exc())
+            file_info = None
+        return file_info
+
+    def _insert_file(self, board_seq, path, fname, oname, user_id):
         """
         Board File 등록
         :param board_seq:
@@ -163,7 +176,7 @@ class BoardService:
             result = -1
         return result
 
-    def update_file(self, file_seq, path, fname, oname, user_id):
+    def _update_file(self, file_seq, path, fname, oname, user_id):
         """
         Board File 변경
         :param file_seq:
@@ -181,7 +194,7 @@ class BoardService:
             result = -1
         return result
 
-    def delete_file(self, file_seq):
+    def _delete_file(self, file_seq):
         """
         첨부파일 정보 삭제
         :param file_seq:
@@ -205,14 +218,15 @@ class BoardService:
         :param user_id:
         :return:
         """
+        # 업로드 디렉토리 설정
         upload_path = PathConfig[g.env_val]['file_path']
         file_base_path = PathConfig[g.env_val]['file_upload_home']
         os.makedirs(file_base_path + os.path.sep + upload_path, exist_ok=True)
         if file_seqs and len(file_seqs) > 0:
-            # 업로드 디렉토리 설정
+            # 등록된 데이터 조회
             file_seq_list = self.get_board_file_list(board_seq, True)
             for idx, file_seq in enumerate(file_seqs):
-                # 기존에 등록된 데이터가 있는 경우
+                # 등록된 데이터가 있는 경우
                 if file_seq and file_seq_list:
                     # 기존 데이터와 비교 후 다르면 데이터 변경
                     old_info = file_seq_list[int(file_seq)]
@@ -226,7 +240,7 @@ class BoardService:
                         new_file_path = file_base_path + os.path.sep + upload_path + os.path.sep + file_tmp_names[idx]
                         shutil.move(tmp_file_path, new_file_path)
                         # 변경된 파일로 다시 저장
-                        self.update_file(file_seq, upload_path, file_tmp_names[idx], file_org_names[idx], user_id)
+                        self._update_file(file_seq, upload_path, file_tmp_names[idx], file_org_names[idx], user_id)
                 # 등록된 데이터가 없는 경우
                 elif not file_seq:
                     # 이동할 파일이 있는지 확인
@@ -236,7 +250,7 @@ class BoardService:
                         new_file_path = file_base_path + os.path.sep + upload_path + os.path.sep + file_tmp_names[idx]
                         shutil.move(tmp_file_path, new_file_path)
                         # 파일등록
-                        self.insert_file(board_seq, upload_path, file_tmp_names[idx], file_org_names[idx], user_id)
+                        self._insert_file(board_seq, upload_path, file_tmp_names[idx], file_org_names[idx], user_id)
             # 삭제 대상 파일 확인 후 삭제
             if file_seq_list:
                 for key in list(file_seq_list.keys()):
@@ -247,9 +261,9 @@ class BoardService:
                         if os.path.exists(old_file_path):
                             os.remove(old_file_path)
                         # 데이터 삭제
-                        self.delete_file(key)
-        else:
-            # 화면에서 등록한 파일이 없는경우 데이터를 확인 후 삭제
+                        self._delete_file(key)
+        else:  # 화면에서 등록한 파일이 없는경우 데이터를 확인 후 삭제
+            # 등록된 데이터 조회
             file_seq_list = self.get_board_file_list(board_seq)
             for old_file in file_seq_list:
                 # 파일 삭제
@@ -257,4 +271,4 @@ class BoardService:
                 if os.path.exists(old_file_path):
                     os.remove(old_file_path)
                 # 데이터 삭제
-                self.delete_file(old_file['SEQ'])
+                self._delete_file(old_file['SEQ'])

@@ -26,8 +26,8 @@ print(key)
 """
 app.secret_key = 'cf7f5046e2f3b85087a1d388fb8bec62'
 app.permanent_session_lifetime = timedelta(minutes=5)
-# 파일업로드 크기 설정(2MB)
-app.config['MAX_CONTENT_LENGTH'] = 2 * 1000 * 1000
+# 파일업로드 크기 설정(50MB)
+app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024
 # Blueprint 설정
 app.register_blueprint(main)
 app.register_blueprint(login)

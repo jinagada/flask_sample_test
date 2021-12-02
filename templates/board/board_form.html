@@ -220,12 +220,15 @@
                 contentType: false,
                 data: formData
             }).done(function (data) {
-                fileOrgName.val(data.file_org_name);
-                fileTmpName.val(data.file_tmp_name);
-                fileTmpPath.val(data.file_tmp_path);
-                tmpFilePathObj.text('{{ url_for('static', filename='') }}' + data.file_tmp_path + '/' + data.file_tmp_name);
+                if (data.is_success) {
+                    fileOrgName.val(data.file_org_name);
+                    fileTmpName.val(data.file_tmp_name);
+                    fileTmpPath.val(data.file_tmp_path);
+                    tmpFilePathObj.text('{{ url_for('static', filename='') }}' + data.file_tmp_path + '/' + data.file_tmp_name);
+                } else {
+                    alert(data.error_msg);
+                }
             }).fail(function (e) {
-                alert('파일업로드 실패');
                 common_ajaxFailProcess(e);
             }).always(function (e) {
                 fileObj.val('');

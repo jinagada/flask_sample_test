@@ -58,7 +58,7 @@ class UsersService:
             totalcount = 0
         return user_list, totalcount
 
-    def insert_user(self, user_id, user_pw, user_name):
+    def _insert_user(self, user_id, user_pw, user_name):
         """
         User 정보 등록
         :param user_id:
@@ -74,7 +74,7 @@ class UsersService:
             result = -1
         return result
 
-    def update_mdate(self, user_id):
+    def _update_mdate(self, user_id):
         """
         수정일 변경
         :return:
@@ -92,9 +92,9 @@ class UsersService:
         :param user_id:
         """
         if self.get_user_by_id(user_id):
-            self.update_mdate(user_id)
+            self._update_mdate(user_id)
 
-    def update_user(self, user_seq, user_id, user_pw, user_name):
+    def _update_user(self, user_seq, user_id, user_pw, user_name):
         """
         User 정보 수정
         :param user_seq:
@@ -125,13 +125,13 @@ class UsersService:
         else:
             user_info = None
         if user_info:
-            result = self.update_user(user_seq, user_id, user_pw, user_name)
+            result = self._update_user(user_seq, user_id, user_pw, user_name)
         else:
-            result = self.insert_user(user_id, user_pw, user_name)
+            result = self._insert_user(user_id, user_pw, user_name)
         if result != 1:
             raise Exception('Save User Error')
 
-    def delete_users(self, user_seq_list):
+    def _delete_users(self, user_seq_list):
         """
         User 삭제
         :param user_seq_list:
@@ -155,5 +155,5 @@ class UsersService:
         if totalcount < 2 or totalcount == len(user_seq_list):
             raise Exception('사용자를 전부 삭제 할 수 없습니다.')
         else:
-            result = self.delete_users(user_seq_list)
+            result = self._delete_users(user_seq_list)
         return result
