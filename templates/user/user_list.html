@@ -1,10 +1,6 @@
-{% extends "bootstrap/base.html" %}
+{% extends "base/base.html" %}
 {% block title %}Sample Test{% endblock %}
 {% block content %}
-<div class="container" style="width: auto">
-  <!-- 메뉴바 : START -->
-  {% include 'includes/_navbar.html' %}
-  <!-- 메뉴바 : END -->
   <!-- 제목 : START -->
   <div class="row">
     <div class="col-md-12">
@@ -70,7 +66,6 @@
   <div id="saveUserModalArea">
   {% include 'user/_save_user_modal.html' %}
   </div>
-</div>
 {% endblock %}
 <!-- javascript 영역 -->
 {% block scripts %}

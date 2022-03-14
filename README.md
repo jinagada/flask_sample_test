@@ -3,7 +3,7 @@
 * conda version : 4.10.3
 * Python 3.7.10 | packaged by conda-forge | (default, Feb 19 2021, 16:07:37)
 * Flask 2.0.1
-* Flask-Bootstrap 3.3.7.1
+* Flask-Bootstrap 3.3.7.1(template 테스트 후 제거)
 * Jinja2 3.0.1
 * Werkzeug 2.0.1
 * gunicorn 20.1.0
